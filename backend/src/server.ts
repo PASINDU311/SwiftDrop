@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { testDatabaseConnection } from "./config/db";
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ app.get("/", (_req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+testDatabaseConnection();
 
 app.listen(PORT, () => {
   console.log(`SwiftDrop API running on port ${PORT}`);
