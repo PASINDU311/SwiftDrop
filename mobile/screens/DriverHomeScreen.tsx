@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 import {
   getAvailableDeliveries,
+  getMyDriverDeliveries,
   acceptDelivery,
+  updateDeliveryStatus,
 } from "../api/api";
 
 type Delivery = {
@@ -21,6 +24,7 @@ type Delivery = {
   package_description: string | null;
   package_weight: number | null;
   status: string;
+  driver_id?: number;
   created_at: string;
 };
 
@@ -40,16 +44,20 @@ export default function DriverHomeScreen({
   const [deliveries, setDeliveries] =
     useState<Delivery[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [myDeliveries, setMyDeliveries] =
+    useState<Delivery[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
 
   const loadDeliveries = async () => {
     try {
-      setLoading(true);
-
       const data =
         await getAvailableDeliveries();
 
-      setDeliveries(data.deliveries || []);
+      setDeliveries(
+        data.deliveries || []
+      );
 
       console.log(
         "✅ Available deliveries:",
@@ -67,17 +75,286 @@ export default function DriverHomeScreen({
         error.response?.data?.message ||
           "Failed to load deliveries."
       );
+    }
+  };
+
+  const loadMyDeliveries = async () => {
+    try {
+      const data =
+        await getMyDriverDeliveries();
+
+      setMyDeliveries(
+        data.deliveries || []
+      );
+
+      console.log(
+        "✅ My driver deliveries:",
+        data.deliveries
+      );
+    } catch (error: any) {
+      console.error(
+        "❌ Failed to load my deliveries:",
+        error.response?.data ||
+          error.message
+      );
+
+      Alert.alert(
+        "Error",
+        error.response?.data?.message ||
+          "Failed to load your deliveries."
+      );
+    }
+  };
+
+  const loadAllDeliveries = async () => {
+    try {
+      setLoading(true);
+
+      await Promise.all([
+        loadDeliveries(),
+        loadMyDeliveries(),
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadDeliveries();
+    loadAllDeliveries();
   }, []);
+
+  const handleAcceptDelivery = async (
+    deliveryId: number
+  ) => {
+    try {
+      await acceptDelivery(deliveryId);
+
+      Alert.alert(
+        "Success",
+        "Delivery accepted successfully."
+      );
+
+      await loadAllDeliveries();
+    } catch (error: any) {
+      console.error(
+        "❌ Accept delivery failed:",
+        error.response?.data ||
+          error.message
+      );
+
+      Alert.alert(
+        "Accept Failed",
+        error.response?.data?.message ||
+          "Failed to accept delivery."
+      );
+    }
+  };
+
+  const handleUpdateStatus = async (
+    deliveryId: number,
+    status:
+      | "picked_up"
+      | "in_transit"
+      | "delivered"
+  ) => {
+    try {
+      await updateDeliveryStatus(
+        deliveryId,
+        status
+      );
+
+      let message = "";
+
+      if (status === "picked_up") {
+        message =
+          "Delivery marked as picked up.";
+      }
+
+      if (status === "in_transit") {
+        message =
+          "Delivery is now in transit.";
+      }
+
+      if (status === "delivered") {
+        message =
+          "Delivery marked as delivered.";
+      }
+
+      Alert.alert(
+        "Updated",
+        message
+      );
+
+      await loadAllDeliveries();
+    } catch (error: any) {
+      console.error(
+        "❌ Update status failed:",
+        error.response?.data ||
+          error.message
+      );
+
+      Alert.alert(
+        "Update Failed",
+        error.response?.data?.message ||
+          "Failed to update delivery."
+      );
+    }
+  };
+
+  const renderDeliveryCard = (
+    item: Delivery,
+    isMyDelivery: boolean
+  ) => {
+    return (
+      <View style={styles.card}>
+        {/* CARD HEADER */}
+        <View style={styles.cardHeader}>
+          <Text style={styles.deliveryId}>
+            Delivery #{item.id}
+          </Text>
+
+          <View style={styles.statusBadge}>
+            <Text style={styles.statusText}>
+              {item.status}
+            </Text>
+          </View>
+        </View>
+
+        {/* PICKUP */}
+        <Text style={styles.label}>
+          PICKUP
+        </Text>
+
+        <Text style={styles.address}>
+          {item.pickup_address}
+        </Text>
+
+        <Text style={styles.arrow}>
+          ↓
+        </Text>
+
+        {/* DELIVERY */}
+        <Text style={styles.label}>
+          DELIVERY
+        </Text>
+
+        <Text style={styles.address}>
+          {item.delivery_address}
+        </Text>
+
+        {/* PACKAGE */}
+        {item.package_description && (
+          <Text style={styles.package}>
+            📦 {item.package_description}
+          </Text>
+        )}
+
+        {/* WEIGHT */}
+        {item.package_weight !== null && (
+          <Text style={styles.package}>
+            ⚖️ {item.package_weight} kg
+          </Text>
+        )}
+
+        {/* AVAILABLE DELIVERY */}
+        {!isMyDelivery &&
+          item.status === "pending" && (
+            <TouchableOpacity
+              style={styles.acceptButton}
+              onPress={() =>
+                handleAcceptDelivery(
+                  item.id
+                )
+              }
+            >
+              <Text
+                style={styles.acceptText}
+              >
+                Accept Delivery
+              </Text>
+            </TouchableOpacity>
+          )}
+
+        {/* ACCEPTED */}
+        {isMyDelivery &&
+          item.status === "accepted" && (
+            <TouchableOpacity
+              style={styles.acceptButton}
+              onPress={() =>
+                handleUpdateStatus(
+                  item.id,
+                  "picked_up"
+                )
+              }
+            >
+              <Text
+                style={styles.acceptText}
+              >
+                Mark as Picked Up
+              </Text>
+            </TouchableOpacity>
+          )}
+
+        {/* PICKED UP */}
+        {isMyDelivery &&
+          item.status === "picked_up" && (
+            <TouchableOpacity
+              style={styles.acceptButton}
+              onPress={() =>
+                handleUpdateStatus(
+                  item.id,
+                  "in_transit"
+                )
+              }
+            >
+              <Text
+                style={styles.acceptText}
+              >
+                Start Delivery
+              </Text>
+            </TouchableOpacity>
+          )}
+
+        {/* IN TRANSIT */}
+        {isMyDelivery &&
+          item.status === "in_transit" && (
+            <TouchableOpacity
+              style={styles.acceptButton}
+              onPress={() =>
+                handleUpdateStatus(
+                  item.id,
+                  "delivered"
+                )
+              }
+            >
+              <Text
+                style={styles.acceptText}
+              >
+                Mark as Delivered
+              </Text>
+            </TouchableOpacity>
+          )}
+
+        {/* DELIVERED */}
+        {isMyDelivery &&
+          item.status === "delivered" && (
+            <View
+              style={styles.completedBox}
+            >
+              <Text
+                style={styles.completedText}
+              >
+                ✓ Delivery Completed
+              </Text>
+            </View>
+          )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
+      {/* HEADER */}
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>
@@ -93,126 +370,149 @@ export default function DriverHomeScreen({
           style={styles.logoutButton}
           onPress={onLogout}
         >
-          <Text style={styles.logoutText}>
+          <Text
+            style={styles.logoutText}
+          >
             Logout
           </Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.sectionTitle}>
-        Available Deliveries
-      </Text>
-
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator
+            size="large"
+          />
 
-          <Text style={styles.loadingText}>
+          <Text
+            style={styles.loadingText}
+          >
             Loading deliveries...
-          </Text>
-        </View>
-      ) : deliveries.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.emptyIcon}>
-            📦
-          </Text>
-
-          <Text style={styles.emptyTitle}>
-            No deliveries available
-          </Text>
-
-          <Text style={styles.emptyText}>
-            New delivery requests will appear here.
           </Text>
         </View>
       ) : (
         <FlatList
-          data={deliveries}
+          data={[]}
           keyExtractor={(item) =>
             item.id.toString()
           }
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.deliveryId}>
-                  Delivery #{item.id}
-                </Text>
+          renderItem={() => null}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={
+            styles.list
+          }
+          refreshing={loading}
+          onRefresh={
+            loadAllDeliveries
+          }
+          ListHeaderComponent={
+            <>
+              {/* MY ACTIVE DELIVERIES */}
+              <Text
+                style={styles.sectionTitle}
+              >
+                My Active Deliveries
+              </Text>
 
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>
-                    {item.status}
+              {myDeliveries.length === 0 ? (
+                <View
+                  style={styles.emptyActive}
+                >
+                  <Text
+                    style={
+                      styles.emptyActiveIcon
+                    }
+                  >
+                    🚚
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.emptyActiveTitle
+                    }
+                  >
+                    No active deliveries
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.emptyActiveText
+                    }
+                  >
+                    Accept a delivery to see
+                    it here.
                   </Text>
                 </View>
-              </View>
-
-              <Text style={styles.label}>
-                PICKUP
-              </Text>
-
-              <Text style={styles.address}>
-                {item.pickup_address}
-              </Text>
-
-              <Text style={styles.arrow}>
-                ↓
-              </Text>
-
-              <Text style={styles.label}>
-                DELIVERY
-              </Text>
-
-              <Text style={styles.address}>
-                {item.delivery_address}
-              </Text>
-
-              {item.package_description && (
-                <Text style={styles.package}>
-                  📦 {item.package_description}
-                </Text>
+              ) : (
+                myDeliveries.map(
+                  (item) => (
+                    <View
+                      key={`my-${item.id}`}
+                    >
+                      {renderDeliveryCard(
+                        item,
+                        true
+                      )}
+                    </View>
+                  )
+                )
               )}
 
-              {item.package_weight !== null && (
-                <Text style={styles.package}>
-                  ⚖️ {item.package_weight} kg
-                </Text>
-              )}
-                <TouchableOpacity
-                style={styles.acceptButton}
-                onPress={async () => {
-                    try {
-                    await acceptDelivery(item.id);
+              {/* AVAILABLE DELIVERIES */}
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  styles.availableTitle,
+                ]}
+              >
+                Available Deliveries
+              </Text>
 
-                    Alert.alert(
-                        "Success",
-                        "Delivery accepted successfully."
-                    );
-
-                    loadDeliveries();
-                    } catch (error: any) {
-                    console.error(
-                        "❌ Accept delivery failed:",
-                        error.response?.data ||
-                        error.message
-                    );
-
-                    Alert.alert(
-                        "Accept Failed",
-                        error.response?.data?.message ||
-                        "Failed to accept delivery."
-                    );
-                    }
-                }}
+              {deliveries.length === 0 ? (
+                <View
+                  style={styles.emptyActive}
                 >
-                <Text style={styles.acceptText}>
-                    Accept Delivery
-                </Text>
-                </TouchableOpacity>
-            </View>
-          )}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          onRefresh={loadDeliveries}
-          refreshing={loading}
+                  <Text
+                    style={
+                      styles.emptyActiveIcon
+                    }
+                  >
+                    📦
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.emptyActiveTitle
+                    }
+                  >
+                    No deliveries available
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.emptyActiveText
+                    }
+                  >
+                    New delivery requests
+                    will appear here.
+                  </Text>
+                </View>
+              ) : (
+                deliveries.map(
+                  (item) => (
+                    <View
+                      key={`available-${item.id}`}
+                    >
+                      {renderDeliveryCard(
+                        item,
+                        false
+                      )}
+                    </View>
+                  )
+                )
+              )}
+            </>
+          }
         />
       )}
     </View>
@@ -229,7 +529,8 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 45,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     alignItems: "center",
   },
 
@@ -259,8 +560,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: "800",
-    marginTop: 35,
+    marginTop: 30,
     marginBottom: 15,
+  },
+
+  availableTitle: {
+    marginTop: 35,
   },
 
   list: {
@@ -276,7 +581,8 @@ const styles = StyleSheet.create({
 
   cardHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     alignItems: "center",
     marginBottom: 18,
   },
@@ -296,7 +602,8 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: "700",
-    textTransform: "capitalize",
+    textTransform:
+      "capitalize",
   },
 
   label: {
@@ -329,7 +636,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#111",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent:
+      "center",
     marginTop: 18,
   },
 
@@ -337,6 +645,45 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 15,
     fontWeight: "700",
+  },
+
+  completedBox: {
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: "#e8f5e9",
+    alignItems: "center",
+    justifyContent:
+      "center",
+    marginTop: 18,
+  },
+
+  completedText: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+
+  emptyActive: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 25,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  emptyActiveIcon: {
+    fontSize: 40,
+    marginBottom: 10,
+  },
+
+  emptyActiveTitle: {
+    fontSize: 17,
+    fontWeight: "800",
+  },
+
+  emptyActiveText: {
+    color: "#666",
+    textAlign: "center",
+    marginTop: 6,
   },
 
   center: {
@@ -348,21 +695,5 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     color: "#666",
-  },
-
-  emptyIcon: {
-    fontSize: 50,
-    marginBottom: 15,
-  },
-
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-  },
-
-  emptyText: {
-    color: "#666",
-    textAlign: "center",
-    marginTop: 8,
   },
 });

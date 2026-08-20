@@ -124,11 +124,33 @@ export async function getAvailableDeliveries() {
   return response.data;
 }
 
+export async function getMyDriverDeliveries() {
+  const response = await API.get(
+    "/deliveries/driver/my-deliveries"
+  );
+
+  return response.data;
+}
+
 export async function acceptDelivery(
   deliveryId: number
 ) {
   const response = await API.patch(
     `/deliveries/${deliveryId}/accept`
+  );
+
+  return response.data;
+}
+
+export async function updateDeliveryStatus(
+  deliveryId: number,
+  status: "picked_up" | "in_transit" | "delivered"
+) {
+  const response = await API.patch(
+    `/deliveries/${deliveryId}/status`,
+    {
+      status,
+    }
   );
 
   return response.data;
