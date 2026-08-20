@@ -163,6 +163,69 @@ export async function getAvailableDeliveries(
   }
 }
 
+export async function acceptDelivery(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    const driverId = req.user?.id;
+
+    if (!driverId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    if (req.user?.role !== "driver") {
+      return res.status(403).json({
+        message: "Driver access required",
+      });
+    }
+
+    const deliveryId = Number(req.params.id);
+
+    if (!deliveryId) {
+      return res.status(400).json({
+        message: "Invalid delivery ID",
+      });
+    }
+
+    const [result]: any = await pool.query(
+      `UPDATE deliveries
+       SET driver_id = ?, status = 'accepted'
+       WHERE id = ?
+       AND status = 'pending'
+       AND driver_id IS NULL`,
+      [driverId, deliveryId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(409).json({
+        message:
+          "Delivery is no longer available",
+      });
+    }
+
+    return res.json({
+      message: "Delivery accepted successfully",
+      delivery: {
+        id: deliveryId,
+        driver_id: driverId,
+        status: "accepted",
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Accept delivery error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to accept delivery",
+    });
+  }
+}
+
 export async function getDeliveryById(
   req: AuthRequest,
   res: Response

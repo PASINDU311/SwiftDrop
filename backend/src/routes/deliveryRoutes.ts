@@ -5,6 +5,7 @@ import {
   getDeliveryById,
   cancelDelivery,
   getAvailableDeliveries,
+  acceptDelivery,
 } from "../controllers/deliveryController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
@@ -26,6 +27,12 @@ router.get(
   "/available",
   authenticateToken,
   getAvailableDeliveries
+);
+
+router.patch(
+  "/:id/accept",
+  authenticateToken,
+  acceptDelivery
 );
 
 router.get(

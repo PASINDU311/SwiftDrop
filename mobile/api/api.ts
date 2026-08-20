@@ -116,6 +116,24 @@ export async function getMyDeliveries() {
   return response.data;
 }
 
+export async function getAvailableDeliveries() {
+  const response = await API.get(
+    "/deliveries/available"
+  );
+
+  return response.data;
+}
+
+export async function acceptDelivery(
+  deliveryId: number
+) {
+  const response = await API.patch(
+    `/deliveries/${deliveryId}/accept`
+  );
+
+  return response.data;
+}
+
 export async function getDeliveryById(id: number) {
   const response = await API.get(`/deliveries/${id}`);
 

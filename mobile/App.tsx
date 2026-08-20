@@ -6,6 +6,7 @@ import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import { getStoredUser } from "./api/api";
+import DriverHomeScreen from "./screens/DriverHomeScreen";
 
 type User = {
   id: number;
@@ -57,10 +58,17 @@ export default function App() {
   return (
     <View style={styles.container}>
       {user ? (
-        <HomeScreen
-          user={user}
-          onLogout={handleLogout}
-        />
+        user.role === "driver" ? (
+          <DriverHomeScreen
+            user={user}
+            onLogout={handleLogout}
+          />
+        ) : (
+          <HomeScreen
+            user={user}
+            onLogout={handleLogout}
+          />
+        )
       ) : showRegister ? (
         <RegisterScreen
           onLogin={() => setShowRegister(false)}
