@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { testDatabaseConnection } from "./config/db";
 import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
+import deliveryRoutes from "./routes/deliveryRoutes";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/deliveries", deliveryRoutes);
 
 app.get("/", (_req, res) => {
   res.json({

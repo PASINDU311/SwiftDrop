@@ -99,4 +99,35 @@ export async function getUsers() {
   return response.data;
 }
 
+export async function createDelivery(data: {
+  pickup_address: string;
+  delivery_address: string;
+  package_description?: string;
+  package_weight?: number;
+}) {
+  const response = await API.post("/deliveries", data);
+
+  return response.data;
+}
+
+export async function getMyDeliveries() {
+  const response = await API.get("/deliveries");
+
+  return response.data;
+}
+
+export async function getDeliveryById(id: number) {
+  const response = await API.get(`/deliveries/${id}`);
+
+  return response.data;
+}
+
+export async function cancelDelivery(id: number) {
+  const response = await API.patch(
+    `/deliveries/${id}/cancel`
+  );
+
+  return response.data;
+}
+
 export default API;

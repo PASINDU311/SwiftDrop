@@ -1,3 +1,6 @@
+import { useState } from "react";
+import MyDeliveriesScreen from "./MyDeliveriesScreen";
+
 import {
   StyleSheet,
   Text,
@@ -5,6 +8,8 @@ import {
   View,
 } from "react-native";
 import { logoutUser } from "../api/api";
+import CreateDeliveryScreen from "./CreateDeliveryScreen";
+import ProfileScreen from "./ProfileScreen";
 
 export default function HomeScreen({
   user,
@@ -19,6 +24,44 @@ export default function HomeScreen({
   };
   onLogout: () => void;
 }) {
+  const [showCreateDelivery, setShowCreateDelivery] =
+    useState(false);
+
+  const [showMyDeliveries, setShowMyDeliveries] =
+    useState(false);
+
+  const [showProfile, setShowProfile] =
+    useState(false);
+
+  if (showCreateDelivery) {
+    return (
+      <CreateDeliveryScreen
+        onBack={() => setShowCreateDelivery(false)}
+      />
+    );
+  }
+
+  if (showMyDeliveries) {
+    return (
+        <MyDeliveriesScreen
+        onBack={() => setShowMyDeliveries(false)}
+        />
+    );
+  }
+
+  if (showProfile) {
+    return (
+        <ProfileScreen
+        user={user}
+        onBack={() => setShowProfile(false)}
+        onLogout={async () => {
+            await logoutUser();
+            onLogout();
+        }}
+        />
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -47,7 +90,10 @@ export default function HomeScreen({
           Send packages quickly and safely.
         </Text>
 
-        <TouchableOpacity style={styles.deliveryButton}>
+        <TouchableOpacity
+            style={styles.deliveryButton}
+            onPress={() => setShowCreateDelivery(true)}
+        >
           <Text style={styles.deliveryButtonText}>
             Create Delivery
           </Text>
@@ -60,7 +106,10 @@ export default function HomeScreen({
         </Text>
 
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => setShowMyDeliveries(true)}
+         >
             <Text style={styles.actionTitle}>
               📦 My Deliveries
             </Text>
@@ -69,7 +118,10 @@ export default function HomeScreen({
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard}>
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => setShowProfile(true)}
+          >
             <Text style={styles.actionTitle}>
               👤 Profile
             </Text>
