@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminDriverDetails from "./AdminDriverDetails";
 
 type Driver = {
   id: number;
@@ -11,6 +12,8 @@ type Driver = {
 export default function AdminDrivers() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDriverId, setSelectedDriverId] =
+    useState<number | null>(null);
 
   useEffect(() => {
     const fetchDrivers = async () => {
@@ -43,10 +46,20 @@ export default function AdminDrivers() {
     fetchDrivers();
   }, []);
 
+  if (selectedDriverId !== null) {
+    return (
+      <AdminDriverDetails
+        driverId={selectedDriverId}
+        onBack={() => setSelectedDriverId(null)}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-7xl">
+
           {/* Header Skeleton */}
           <div className="mb-8 animate-pulse">
             <div className="h-8 w-56 rounded bg-slate-200" />
@@ -56,19 +69,24 @@ export default function AdminDrivers() {
           {/* Table Skeleton */}
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm">
+              <table className="w-full min-w-[1000px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50/80">
-                    {["ID", "Name", "Email", "Phone", "Joined"].map(
-                      (heading) => (
-                        <th
-                          key={heading}
-                          className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500"
-                        >
-                          {heading}
-                        </th>
-                      )
-                    )}
+                    {[
+                      "ID",
+                      "Name",
+                      "Email",
+                      "Phone",
+                      "Joined",
+                      "Actions",
+                    ].map((heading) => (
+                      <th
+                        key={heading}
+                        className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500"
+                      >
+                        {heading}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
 
@@ -97,12 +115,17 @@ export default function AdminDrivers() {
                       <td className="px-4 py-4">
                         <div className="h-3 w-24 rounded bg-slate-200" />
                       </td>
+
+                      <td className="px-4 py-4">
+                        <div className="h-8 w-24 rounded bg-slate-200" />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
+
         </div>
       </div>
     );
@@ -123,10 +146,10 @@ export default function AdminDrivers() {
           </p>
         </div>
 
-        {/* Empty State / Table */}
+        {/* Table */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-sm">
+            <table className="w-full min-w-[1000px] text-left text-sm">
 
               {/* Table Header */}
               <thead>
@@ -150,6 +173,10 @@ export default function AdminDrivers() {
                   <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
                     Joined
                   </th>
+
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -158,7 +185,7 @@ export default function AdminDrivers() {
                 {drivers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-4 py-16 text-center"
                     >
                       <p className="font-semibold text-slate-900">
@@ -209,10 +236,23 @@ export default function AdminDrivers() {
                           driver.created_at
                         ).toLocaleDateString()}
                       </td>
+
+                      {/* Actions */}
+                      <td className="whitespace-nowrap px-4 py-3">
+                        <button
+                          onClick={() =>
+                            setSelectedDriverId(driver.id)
+                          }
+                          className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-900 hover:text-white"
+                        >
+                          View Details
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}
               </tbody>
+
             </table>
           </div>
         </div>

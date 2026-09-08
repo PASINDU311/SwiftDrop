@@ -9,6 +9,7 @@ import {
   getAllDrivers,
   getAdminDeliveryById,
   getAdminUserById,
+  getAdminDriverById,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -29,6 +30,12 @@ router.get(
   "/users/:id",
   authenticateToken,
   getAdminUserById
+);
+
+router.get(
+  "/drivers/:id",
+  authenticateToken,
+  getAdminDriverById
 );
 
 router.get(

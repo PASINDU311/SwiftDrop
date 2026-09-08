@@ -165,6 +165,56 @@ export async function getAdminUserById(
   }
 }
 
+export async function getAdminDriverById(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Admin access required" });
+    }
+
+    const driverId = req.params.id;
+
+    const [rows]: any = await pool.query(
+      `SELECT
+        id,
+        name,
+        email,
+        phone,
+        role,
+        created_at,
+        updated_at
+       FROM users
+       WHERE id = ? AND role = 'driver'`,
+      [driverId]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Driver not found" });
+    }
+
+    return res.json({
+      driver: rows[0],
+    });
+  } catch (error) {
+    console.error(
+      "Get admin driver by ID error:",
+      error
+    );
+
+    return res
+      .status(500)
+      .json({
+        message: "Failed to fetch driver details",
+      });
+  }
+}
+
 export async function getAllDeliveries(
   req: AuthRequest,
   res: Response
