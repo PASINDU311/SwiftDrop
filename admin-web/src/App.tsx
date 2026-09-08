@@ -13,6 +13,10 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState("dashboard");
 
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
+
   if (!isLoggedIn) {
     return (
       <AdminLogin
@@ -21,9 +25,28 @@ function App() {
     );
   }
 
+  const handleToggleTheme = () => {
+    const newMode = !darkMode;
+
+    setDarkMode(newMode);
+
+    localStorage.setItem(
+      "theme",
+      newMode ? "dark" : "light"
+    );
+  };
+
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div
+      className={
+        darkMode
+          ? "dark flex min-h-screen"
+          : "flex min-h-screen"
+      }
+    >
       <AdminSidebar
+        darkMode={darkMode}
+        onToggleTheme={handleToggleTheme}
         onDashboard={() => setCurrentPage("dashboard")}
         onUsers={() => setCurrentPage("users")}
         onDeliveries={() => setCurrentPage("deliveries")}
@@ -35,13 +58,21 @@ function App() {
       />
 
       <main className="min-w-0 flex-1">
-        {currentPage === "dashboard" && <AdminDashboard />}
+        {currentPage === "dashboard" && (
+          <AdminDashboard />
+        )}
 
-        {currentPage === "users" && <AdminUsers />}
+        {currentPage === "users" && (
+          <AdminUsers />
+        )}
 
-        {currentPage === "deliveries" && <AdminDeliveries />}
+        {currentPage === "deliveries" && (
+          <AdminDeliveries />
+        )}
 
-        {currentPage === "drivers" && <AdminDrivers />}
+        {currentPage === "drivers" && (
+          <AdminDrivers />
+        )}
       </main>
     </div>
   );

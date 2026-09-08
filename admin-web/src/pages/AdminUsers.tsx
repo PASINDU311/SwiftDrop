@@ -18,15 +18,20 @@ const ROLE_OPTIONS = [
 ];
 
 const ROLE_STYLES: Record<string, string> = {
-  admin: "bg-violet-50 text-violet-700 ring-violet-600/20",
-  driver: "bg-sky-50 text-sky-700 ring-sky-600/20",
-  customer: "bg-slate-100 text-slate-600 ring-slate-500/20",
+  admin:
+    "bg-violet-50 text-violet-700 ring-violet-600/20 dark:bg-violet-400/10 dark:text-violet-400 dark:ring-violet-400/20",
+
+  driver:
+    "bg-sky-50 text-sky-700 ring-sky-600/20 dark:bg-sky-400/10 dark:text-sky-400 dark:ring-sky-400/20",
+
+  customer:
+    "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600/30",
 };
 
 function RoleBadge({ role }: { role: string }) {
   const style =
     ROLE_STYLES[role] ??
-    "bg-slate-100 text-slate-600 ring-slate-500/20";
+    "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600/30";
 
   return (
     <span
@@ -40,6 +45,7 @@ function RoleBadge({ role }: { role: string }) {
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [selectedUserId, setSelectedUserId] =
     useState<number | null>(null);
 
@@ -107,27 +113,30 @@ export default function AdminUsers() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
+      <div className="min-h-screen bg-slate-50 px-4 py-8 transition-colors duration-300 dark:bg-slate-900 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-7xl">
 
           {/* Header Skeleton */}
           <div className="mb-8 animate-pulse">
-            <div className="h-8 w-52 rounded bg-slate-200" />
-            <div className="mt-2 h-4 w-40 rounded bg-slate-200" />
+            <div className="h-8 w-52 rounded bg-slate-200 dark:bg-slate-800" />
+
+            <div className="mt-2 h-4 w-40 rounded bg-slate-200 dark:bg-slate-800" />
           </div>
 
           {/* Controls Skeleton */}
           <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-200 sm:max-w-xs" />
-            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-200 sm:w-48" />
+            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800 sm:max-w-xs" />
+
+            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-200 dark:bg-slate-800 sm:w-48" />
           </div>
 
           {/* Table Skeleton */}
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:shadow-none">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-left text-sm">
+
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50/80">
+                  <tr className="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-900">
                     {[
                       "ID",
                       "Name",
@@ -139,7 +148,7 @@ export default function AdminUsers() {
                     ].map((heading) => (
                       <th
                         key={heading}
-                        className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500"
+                        className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"
                       >
                         {heading}
                       </th>
@@ -147,7 +156,7 @@ export default function AdminUsers() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {Array.from({ length: 6 }).map(
                     (_, index) => (
                       <tr
@@ -155,36 +164,37 @@ export default function AdminUsers() {
                         className="animate-pulse"
                       >
                         <td className="px-4 py-4">
-                          <div className="h-3 w-12 rounded bg-slate-200" />
+                          <div className="h-3 w-12 rounded bg-slate-200 dark:bg-slate-800" />
                         </td>
 
                         <td className="px-4 py-4">
-                          <div className="h-3 w-32 rounded bg-slate-200" />
+                          <div className="h-3 w-32 rounded bg-slate-200 dark:bg-slate-800" />
                         </td>
 
                         <td className="px-4 py-4">
-                          <div className="h-3 w-48 rounded bg-slate-200" />
+                          <div className="h-3 w-48 rounded bg-slate-200 dark:bg-slate-800" />
                         </td>
 
                         <td className="px-4 py-4">
-                          <div className="h-3 w-28 rounded bg-slate-200" />
+                          <div className="h-3 w-28 rounded bg-slate-200 dark:bg-slate-800" />
                         </td>
 
                         <td className="px-4 py-4">
-                          <div className="h-3 w-20 rounded bg-slate-200" />
+                          <div className="h-3 w-20 rounded bg-slate-200 dark:bg-slate-800" />
                         </td>
 
                         <td className="px-4 py-4">
-                          <div className="h-3 w-24 rounded bg-slate-200" />
+                          <div className="h-3 w-24 rounded bg-slate-200 dark:bg-slate-800" />
                         </td>
 
                         <td className="px-4 py-4">
-                          <div className="h-8 w-24 rounded bg-slate-200" />
+                          <div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-800" />
                         </td>
                       </tr>
                     )
                   )}
                 </tbody>
+
               </table>
             </div>
           </div>
@@ -195,16 +205,16 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
+    <div className="min-h-screen bg-slate-50 px-4 py-8 transition-colors duration-300 dark:bg-slate-900 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl">
 
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
             Users Management
           </h1>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {filteredUsers.length} of {users.length} users shown
           </p>
         </div>
@@ -214,8 +224,9 @@ export default function AdminUsers() {
 
           {/* Search */}
           <div className="relative w-full sm:max-w-xs">
+
             <svg
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -226,6 +237,7 @@ export default function AdminUsers() {
                 cy="11"
                 r="7"
               />
+
               <path d="m20 20-3.5-3.5" />
             </svg>
 
@@ -236,8 +248,9 @@ export default function AdminUsers() {
               onChange={(e) =>
                 setSearchTerm(e.target.value)
               }
-              className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+              className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
+
           </div>
 
           {/* Role Filter */}
@@ -246,7 +259,7 @@ export default function AdminUsers() {
             onChange={(e) =>
               setRoleFilter(e.target.value)
             }
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 sm:w-48"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm outline-none transition-all focus:border-amber-400 focus:ring-2 focus:ring-amber-400/10 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 sm:w-48"
           >
             {ROLE_OPTIONS.map((option) => (
               <option
@@ -257,59 +270,65 @@ export default function AdminUsers() {
               </option>
             ))}
           </select>
+
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950 dark:shadow-none">
+
           <div className="overflow-x-auto">
+
             <table className="w-full min-w-[1000px] text-left text-sm">
 
               {/* Table Header */}
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/80">
-                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                <tr className="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-900">
+
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     ID
                   </th>
 
-                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Name
                   </th>
 
-                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Email
                   </th>
 
-                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Phone
                   </th>
 
-                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Role
                   </th>
 
-                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Created At
                   </th>
 
-                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Actions
                   </th>
+
                 </tr>
               </thead>
 
               {/* Table Body */}
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
                       className="px-4 py-16 text-center"
                     >
-                      <p className="font-semibold text-slate-900">
+                      <p className="font-semibold text-slate-900 dark:text-white">
                         No users found
                       </p>
 
-                      <p className="mt-1 text-sm text-slate-400">
+                      <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
                         Try changing your search or role filter.
                       </p>
                     </td>
@@ -318,30 +337,31 @@ export default function AdminUsers() {
                   filteredUsers.map((user) => (
                     <tr
                       key={user.id}
-                      className="transition-colors hover:bg-slate-50"
+                      className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-900"
                     >
+
                       {/* ID */}
-                      <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-900">
+                      <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-900 dark:text-white">
                         #{user.id}
                       </td>
 
                       {/* Name */}
-                      <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-900">
+                      <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
                         {user.name}
                       </td>
 
                       {/* Email */}
                       <td
-                        className="max-w-[180px] truncate px-4 py-3 text-slate-600"
+                        className="max-w-[180px] truncate px-4 py-3 text-slate-600 dark:text-slate-300"
                         title={user.email}
                       >
                         {user.email}
                       </td>
 
                       {/* Phone */}
-                      <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                      <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">
                         {user.phone || (
-                          <span className="text-slate-400">
+                          <span className="text-slate-400 dark:text-slate-600">
                             —
                           </span>
                         )}
@@ -353,7 +373,7 @@ export default function AdminUsers() {
                       </td>
 
                       {/* Created At */}
-                      <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                      <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-400">
                         {new Date(
                           user.created_at
                         ).toLocaleDateString()}
@@ -361,21 +381,26 @@ export default function AdminUsers() {
 
                       {/* Actions */}
                       <td className="whitespace-nowrap px-4 py-3">
+
                         <button
                           onClick={() =>
                             setSelectedUserId(user.id)
                           }
-                          className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-900 hover:text-white"
+                          className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-900 hover:text-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white dark:hover:text-slate-900"
                         >
                           View Details
                         </button>
+
                       </td>
+
                     </tr>
                   ))
                 )}
+
               </tbody>
 
             </table>
+
           </div>
         </div>
 
