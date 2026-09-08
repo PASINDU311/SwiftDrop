@@ -115,6 +115,56 @@ export async function getAllUsers(
   }
 }
 
+export async function getAdminUserById(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Admin access required" });
+    }
+
+    const userId = req.params.id;
+
+    const [rows]: any = await pool.query(
+      `SELECT
+        id,
+        name,
+        email,
+        phone,
+        role,
+        created_at,
+        updated_at
+       FROM users
+       WHERE id = ?`,
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "User not found" });
+    }
+
+    return res.json({
+      user: rows[0],
+    });
+  } catch (error) {
+    console.error(
+      "Get admin user by ID error:",
+      error
+    );
+
+    return res
+      .status(500)
+      .json({
+        message: "Failed to fetch user details",
+      });
+  }
+}
+
 export async function getAllDeliveries(
   req: AuthRequest,
   res: Response

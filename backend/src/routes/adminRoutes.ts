@@ -1,11 +1,14 @@
 import { Router } from "express";
+
 import { authenticateToken } from "../middleware/authMiddleware";
+
 import {
   getAdminDashboard,
   getAllUsers,
   getAllDeliveries,
   getAllDrivers,
   getAdminDeliveryById,
+  getAdminUserById,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -20,6 +23,12 @@ router.get(
   "/users",
   authenticateToken,
   getAllUsers
+);
+
+router.get(
+  "/users/:id",
+  authenticateToken,
+  getAdminUserById
 );
 
 router.get(

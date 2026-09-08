@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminUserDetails from "./AdminUserDetails";
 
 type User = {
   id: number;
@@ -12,6 +13,8 @@ type User = {
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUserId, setSelectedUserId] =
+    useState<number | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -44,6 +47,15 @@ export default function AdminUsers() {
     fetchUsers();
   }, []);
 
+  if (selectedUserId !== null) {
+    return (
+      <AdminUserDetails
+        userId={selectedUserId}
+        onBack={() => setSelectedUserId(null)}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
@@ -58,7 +70,7 @@ export default function AdminUsers() {
           {/* Table Skeleton */}
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm">
+              <table className="w-full min-w-[1000px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50/80">
                     {[
@@ -68,6 +80,7 @@ export default function AdminUsers() {
                       "Phone",
                       "Role",
                       "Created At",
+                      "Actions",
                     ].map((heading) => (
                       <th
                         key={heading}
@@ -108,6 +121,10 @@ export default function AdminUsers() {
                       <td className="px-4 py-4">
                         <div className="h-3 w-24 rounded bg-slate-200" />
                       </td>
+
+                      <td className="px-4 py-4">
+                        <div className="h-8 w-24 rounded bg-slate-200" />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -138,7 +155,7 @@ export default function AdminUsers() {
         {/* Table */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-sm">
+            <table className="w-full min-w-[1000px] text-left text-sm">
 
               {/* Table Header */}
               <thead>
@@ -166,6 +183,10 @@ export default function AdminUsers() {
                   <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
                     Created At
                   </th>
+
+                  <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -174,7 +195,7 @@ export default function AdminUsers() {
                 {users.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="px-4 py-16 text-center"
                     >
                       <p className="font-semibold text-slate-900">
@@ -239,6 +260,18 @@ export default function AdminUsers() {
                         {new Date(
                           user.created_at
                         ).toLocaleDateString()}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="whitespace-nowrap px-4 py-3">
+                        <button
+                          onClick={() =>
+                            setSelectedUserId(user.id)
+                          }
+                          className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-900 hover:text-white"
+                        >
+                          View Details
+                        </button>
                       </td>
                     </tr>
                   ))
