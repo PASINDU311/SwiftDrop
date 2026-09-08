@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  ScrollView,
   View,
 } from "react-native";
 import {
@@ -145,7 +146,10 @@ export default function DeliveryDetailsScreen({
   }
 
   return (
-    <View style={styles.container}>
+<ScrollView
+  style={styles.container}
+  contentContainerStyle={styles.content}
+>
       <TouchableOpacity
         style={styles.backButton}
         onPress={onBack}
@@ -274,7 +278,7 @@ export default function DeliveryDetailsScreen({
           </Text>
         </TouchableOpacity>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -284,6 +288,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f6f8",
     padding: 24,
     paddingTop: 55,
+  },
+
+  content: {
+    paddingBottom: 40,
   },
 
   center: {
