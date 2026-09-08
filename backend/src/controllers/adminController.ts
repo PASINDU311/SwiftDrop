@@ -57,6 +57,24 @@ export async function getAdminDashboard(
        WHERE status = 'delivered'`
     );
 
+    const [recentDeliveries]: any = await pool.query(
+      `SELECT
+        d.id,
+        d.pickup_address,
+        d.delivery_address,
+        d.status,
+        d.created_at,
+        customer.name AS customer_name,
+        driver.name AS driver_name
+       FROM deliveries d
+       LEFT JOIN users customer
+         ON d.customer_id = customer.id
+       LEFT JOIN users driver
+         ON d.driver_id = driver.id
+       ORDER BY d.created_at DESC
+       LIMIT 5`
+    );
+
     return res.json({
       statistics: {
         total_users: users[0].total_users,
@@ -67,6 +85,7 @@ export async function getAdminDashboard(
         active_deliveries: active[0].active_deliveries,
         completed_deliveries: completed[0].completed_deliveries,
       },
+      recent_deliveries: recentDeliveries,
     });
   } catch (error) {
     console.error(
@@ -352,6 +371,83 @@ export async function getAdminDeliveryById(
 
     return res.status(500).json({
       message: "Failed to fetch delivery details",
+    });
+  }
+}
+
+export async function assignDriverToDelivery(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    const deliveryId = req.params.id;
+    const { driver_id } = req.body;
+
+    if (!driver_id) {
+      return res.status(400).json({
+        message: "Driver ID is required",
+      });
+    }
+
+    const [drivers]: any = await pool.query(
+      `SELECT id
+       FROM users
+       WHERE id = ? AND role = 'driver'`,
+      [driver_id]
+    );
+
+    if (drivers.length === 0) {
+      return res.status(404).json({
+        message: "Driver not found",
+      });
+    }
+
+    const [deliveries]: any = await pool.query(
+      `SELECT id, status
+       FROM deliveries
+       WHERE id = ?`,
+      [deliveryId]
+    );
+
+    if (deliveries.length === 0) {
+      return res.status(404).json({
+        message: "Delivery not found",
+      });
+    }
+
+    if (deliveries[0].status !== "pending") {
+      return res.status(400).json({
+        message:
+          "Only pending deliveries can be assigned to a driver",
+      });
+    }
+
+    await pool.query(
+      `UPDATE deliveries
+       SET driver_id = ?,
+           status = 'accepted',
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+      [driver_id, deliveryId]
+    );
+
+    return res.json({
+      message: "Driver assigned successfully",
+    });
+  } catch (error) {
+    console.error(
+      "Assign driver to delivery error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to assign driver",
     });
   }
 }

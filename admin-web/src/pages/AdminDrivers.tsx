@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AdminDriverDetails from "./AdminDriverDetails";
 
 type Driver = {
@@ -14,6 +14,8 @@ export default function AdminDrivers() {
   const [loading, setLoading] = useState(true);
   const [selectedDriverId, setSelectedDriverId] =
     useState<number | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchDrivers = async () => {
@@ -46,6 +48,20 @@ export default function AdminDrivers() {
     fetchDrivers();
   }, []);
 
+  const filteredDrivers = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
+    return drivers.filter((driver) => {
+      return (
+        term === "" ||
+        driver.id.toString().includes(term) ||
+        driver.name.toLowerCase().includes(term) ||
+        driver.email.toLowerCase().includes(term) ||
+        (driver.phone || "").toLowerCase().includes(term)
+      );
+    });
+  }, [drivers, searchTerm]);
+
   if (selectedDriverId !== null) {
     return (
       <AdminDriverDetails
@@ -65,6 +81,9 @@ export default function AdminDrivers() {
             <div className="h-8 w-56 rounded bg-slate-200" />
             <div className="mt-2 h-4 w-40 rounded bg-slate-200" />
           </div>
+
+          {/* Controls Skeleton */}
+          <div className="mb-4 h-10 w-full animate-pulse rounded-lg bg-slate-200 sm:max-w-xs" />
 
           {/* Table Skeleton */}
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -91,36 +110,38 @@ export default function AdminDrivers() {
                 </thead>
 
                 <tbody className="divide-y divide-slate-100">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <tr
-                      key={index}
-                      className="animate-pulse"
-                    >
-                      <td className="px-4 py-4">
-                        <div className="h-3 w-12 rounded bg-slate-200" />
-                      </td>
+                  {Array.from({ length: 6 }).map(
+                    (_, index) => (
+                      <tr
+                        key={index}
+                        className="animate-pulse"
+                      >
+                        <td className="px-4 py-4">
+                          <div className="h-3 w-12 rounded bg-slate-200" />
+                        </td>
 
-                      <td className="px-4 py-4">
-                        <div className="h-3 w-32 rounded bg-slate-200" />
-                      </td>
+                        <td className="px-4 py-4">
+                          <div className="h-3 w-32 rounded bg-slate-200" />
+                        </td>
 
-                      <td className="px-4 py-4">
-                        <div className="h-3 w-48 rounded bg-slate-200" />
-                      </td>
+                        <td className="px-4 py-4">
+                          <div className="h-3 w-48 rounded bg-slate-200" />
+                        </td>
 
-                      <td className="px-4 py-4">
-                        <div className="h-3 w-28 rounded bg-slate-200" />
-                      </td>
+                        <td className="px-4 py-4">
+                          <div className="h-3 w-28 rounded bg-slate-200" />
+                        </td>
 
-                      <td className="px-4 py-4">
-                        <div className="h-3 w-24 rounded bg-slate-200" />
-                      </td>
+                        <td className="px-4 py-4">
+                          <div className="h-3 w-24 rounded bg-slate-200" />
+                        </td>
 
-                      <td className="px-4 py-4">
-                        <div className="h-8 w-24 rounded bg-slate-200" />
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="px-4 py-4">
+                          <div className="h-8 w-24 rounded bg-slate-200" />
+                        </td>
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </div>
@@ -142,8 +163,40 @@ export default function AdminDrivers() {
           </h1>
 
           <p className="mt-1 text-sm text-slate-500">
-            {drivers.length} drivers registered
+            {filteredDrivers.length} of {drivers.length} drivers shown
           </p>
+        </div>
+
+        {/* Search */}
+        <div className="mb-4">
+          <div className="relative w-full sm:max-w-xs">
+
+            <svg
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle
+                cx="11"
+                cy="11"
+                r="7"
+              />
+
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+
+            <input
+              type="text"
+              placeholder="Search drivers..."
+              value={searchTerm}
+              onChange={(e) =>
+                setSearchTerm(e.target.value)
+              }
+              className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+            />
+          </div>
         </div>
 
         {/* Table */}
@@ -182,7 +235,7 @@ export default function AdminDrivers() {
 
               {/* Table Body */}
               <tbody className="divide-y divide-slate-100">
-                {drivers.length === 0 ? (
+                {filteredDrivers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={6}
@@ -193,12 +246,12 @@ export default function AdminDrivers() {
                       </p>
 
                       <p className="mt-1 text-sm text-slate-400">
-                        There are currently no registered drivers.
+                        Try changing your search term.
                       </p>
                     </td>
                   </tr>
                 ) : (
-                  drivers.map((driver) => (
+                  filteredDrivers.map((driver) => (
                     <tr
                       key={driver.id}
                       className="transition-colors hover:bg-slate-50"

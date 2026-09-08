@@ -10,6 +10,7 @@ import {
   getAdminDeliveryById,
   getAdminUserById,
   getAdminDriverById,
+  assignDriverToDelivery,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -54,6 +55,12 @@ router.get(
   "/deliveries/:id",
   authenticateToken,
   getAdminDeliveryById
+);
+
+router.patch(
+  "/deliveries/:id/assign-driver",
+  authenticateToken,
+  assignDriverToDelivery
 );
 
 export default router;

@@ -22,7 +22,7 @@ function App() {
   }
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="flex min-h-screen bg-slate-50">
       <AdminSidebar
         onDashboard={() => setCurrentPage("dashboard")}
         onUsers={() => setCurrentPage("users")}
@@ -34,7 +34,7 @@ function App() {
         }}
       />
 
-      <main style={{ flex: 1 }}>
+      <main className="min-w-0 flex-1">
         {currentPage === "dashboard" && <AdminDashboard />}
 
         {currentPage === "users" && <AdminUsers />}
