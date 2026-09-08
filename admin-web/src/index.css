@@ -88,3 +88,38 @@ th {
 tbody tr:hover {
   background: #273449;
 }
+
+.admin-sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: #1f2937;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.admin-sidebar h2 {
+  margin: 0 0 32px;
+  font-size: 24px;
+}
+
+.admin-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-sidebar button {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #ffffff;
+  text-align: left;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.admin-sidebar button:hover {
+  background: #374151;
+}

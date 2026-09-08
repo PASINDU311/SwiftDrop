@@ -114,3 +114,48 @@ export async function getAllUsers(
     });
   }
 }
+
+export async function getAllDeliveries(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    const [deliveries] = await pool.query(
+      `SELECT
+        d.id,
+        d.customer_id,
+        d.driver_id,
+        d.pickup_address,
+        d.delivery_address,
+        d.package_description,
+        d.package_weight,
+        d.status,
+        d.created_at,
+        d.updated_at,
+        customer.name AS customer_name,
+        driver.name AS driver_name
+       FROM deliveries d
+       LEFT JOIN users customer
+         ON d.customer_id = customer.id
+       LEFT JOIN users driver
+         ON d.driver_id = driver.id
+       ORDER BY d.created_at DESC`
+    );
+
+    return res.json({
+      deliveries,
+    });
+  } catch (error) {
+    console.error("Get all deliveries error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch deliveries",
+    });
+  }
+}
