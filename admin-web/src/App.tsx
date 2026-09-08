@@ -4,6 +4,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminSidebar from "./components/AdminSidebar";
 import AdminDeliveries from "./pages/AdminDeliveries";
+import AdminDrivers from "./pages/AdminDrivers";
 
 
 function App() {
@@ -21,6 +22,11 @@ function App() {
         onDashboard={() => setCurrentPage("dashboard")}
         onUsers={() => setCurrentPage("users")}
         onDeliveries={() => setCurrentPage("deliveries")}
+        onDrivers={() => setCurrentPage("drivers")}
+        onLogout={() => {
+          localStorage.removeItem("adminToken");
+          window.location.reload();
+        }}
       />
 
       <main style={{ flex: 1 }}>
@@ -28,6 +34,7 @@ function App() {
 
         {currentPage === "users" && <AdminUsers />}
         {currentPage === "deliveries" && <AdminDeliveries />}
+        {currentPage === "drivers" && <AdminDrivers />}
       </main>
     </div>
   );

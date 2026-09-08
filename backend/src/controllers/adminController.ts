@@ -159,3 +159,38 @@ export async function getAllDeliveries(
     });
   }
 }
+
+export async function getAllDrivers(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    const [drivers] = await pool.query(
+      `SELECT
+        id,
+        name,
+        email,
+        phone,
+        created_at
+       FROM users
+       WHERE role = 'driver'
+       ORDER BY created_at DESC`
+    );
+
+    return res.json({
+      drivers,
+    });
+  } catch (error) {
+    console.error("Get all drivers error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch drivers",
+    });
+  }
+}
