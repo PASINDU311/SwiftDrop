@@ -42,46 +42,84 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div>
-      <h1>SwiftDrop Admin Dashboard</h1>
+    <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+            SwiftDrop Admin Dashboard
+          </h1>
 
-      <h2>Statistics</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Overview of your delivery platform
+          </p>
+        </div>
 
-      <div className="stats-grid">
-        <StatCard
-          title="Total Users"
-          value={stats.total_users}
-        />
+        {/* Statistics */}
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-slate-900">
+            Statistics
+          </h2>
 
-        <StatCard
-          title="Total Drivers"
-          value={stats.total_drivers}
-        />
+          <div
+            className="
+              grid grid-cols-1 gap-4
+              sm:grid-cols-2
+              lg:grid-cols-4
+              [&>div]:rounded-xl
+              [&>div]:border
+              [&>div]:border-slate-200
+              [&>div]:bg-white
+              [&>div]:p-6
+              [&>div]:shadow-sm
+              [&>div]:transition-shadow
+              [&>div]:hover:shadow-md
+              [&>div>h3]:mb-2
+              [&>div>h3]:text-sm
+              [&>div>h3]:font-medium
+              [&>div>h3]:text-slate-500
+              [&>div>p]:text-3xl
+              [&>div>p]:font-semibold
+              [&>div>p]:tracking-tight
+              [&>div>p]:text-slate-900
+            "
+          >
+            <StatCard
+              title="Total Users"
+              value={stats.total_users}
+            />
 
-        <StatCard
-          title="Total Customers"
-          value={stats.total_customers}
-        />
+            <StatCard
+              title="Total Drivers"
+              value={stats.total_drivers}
+            />
 
-        <StatCard
-          title="Total Deliveries"
-          value={stats.total_deliveries}
-        />
+            <StatCard
+              title="Total Customers"
+              value={stats.total_customers}
+            />
 
-        <StatCard
-          title="Pending Deliveries"
-          value={stats.pending_deliveries}
-        />
+            <StatCard
+              title="Total Deliveries"
+              value={stats.total_deliveries}
+            />
 
-        <StatCard
-          title="Active Deliveries"
-          value={stats.active_deliveries}
-        />
+            <StatCard
+              title="Pending Deliveries"
+              value={stats.pending_deliveries}
+            />
 
-        <StatCard
-          title="Completed Deliveries"
-          value={stats.completed_deliveries}
-        />
+            <StatCard
+              title="Active Deliveries"
+              value={stats.active_deliveries}
+            />
+
+            <StatCard
+              title="Completed Deliveries"
+              value={stats.completed_deliveries}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
