@@ -194,3 +194,64 @@ export async function getAllDrivers(
     });
   }
 }
+
+export async function getAdminDeliveryById(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    const deliveryId = req.params.id;
+
+    const [rows]: any = await pool.query(
+      `SELECT
+        d.id,
+        d.customer_id,
+        d.driver_id,
+        d.pickup_address,
+        d.delivery_address,
+        d.package_description,
+        d.package_weight,
+        d.status,
+        d.created_at,
+        d.updated_at,
+        customer.name AS customer_name,
+        customer.email AS customer_email,
+        customer.phone AS customer_phone,
+        driver.name AS driver_name,
+        driver.email AS driver_email,
+        driver.phone AS driver_phone
+       FROM deliveries d
+       LEFT JOIN users customer
+         ON d.customer_id = customer.id
+       LEFT JOIN users driver
+         ON d.driver_id = driver.id
+       WHERE d.id = ?`,
+      [deliveryId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Delivery not found",
+      });
+    }
+
+    return res.json({
+      delivery: rows[0],
+    });
+  } catch (error) {
+    console.error(
+      "Get admin delivery by ID error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to fetch delivery details",
+    });
+  }
+}

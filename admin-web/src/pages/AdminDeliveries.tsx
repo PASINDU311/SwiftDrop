@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminDeliveryDetails from "./AdminDeliveryDetails";
 
 type Delivery = {
   id: number;
@@ -18,6 +19,8 @@ type Delivery = {
 export default function AdminDeliveries() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDeliveryId, setSelectedDeliveryId] =
+    useState<number | null>(null);
 
   useEffect(() => {
     const fetchDeliveries = async () => {
@@ -54,6 +57,15 @@ export default function AdminDeliveries() {
     return <p>Loading deliveries...</p>;
   }
 
+  if (selectedDeliveryId !== null) {
+    return (
+      <AdminDeliveryDetails
+        deliveryId={selectedDeliveryId}
+        onBack={() => setSelectedDeliveryId(null)}
+      />
+    );
+  }
+
   return (
     <div>
       <h1>Delivery Management</h1>
@@ -69,6 +81,7 @@ export default function AdminDeliveries() {
             <th>Package</th>
             <th>Weight</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
 
@@ -76,13 +89,44 @@ export default function AdminDeliveries() {
           {deliveries.map((delivery) => (
             <tr key={delivery.id}>
               <td>{delivery.id}</td>
-              <td>{delivery.customer_name || "-"}</td>
-              <td>{delivery.driver_name || "Unassigned"}</td>
-              <td>{delivery.pickup_address}</td>
-              <td>{delivery.delivery_address}</td>
-              <td>{delivery.package_description}</td>
-              <td>{delivery.package_weight} kg</td>
-              <td>{delivery.status}</td>
+
+              <td>
+                {delivery.customer_name || "-"}
+              </td>
+
+              <td>
+                {delivery.driver_name || "Unassigned"}
+              </td>
+
+              <td>
+                {delivery.pickup_address}
+              </td>
+
+              <td>
+                {delivery.delivery_address}
+              </td>
+
+              <td>
+                {delivery.package_description}
+              </td>
+
+              <td>
+                {delivery.package_weight} kg
+              </td>
+
+              <td>
+                {delivery.status}
+              </td>
+
+              <td>
+                <button
+                  onClick={() =>
+                    setSelectedDeliveryId(delivery.id)
+                  }
+                >
+                  View Details
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

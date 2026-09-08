@@ -5,6 +5,7 @@ import {
   getAllUsers,
   getAllDeliveries,
   getAllDrivers,
+  getAdminDeliveryById,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -31,6 +32,12 @@ router.get(
   "/drivers",
   authenticateToken,
   getAllDrivers
+);
+
+router.get(
+  "/deliveries/:id",
+  authenticateToken,
+  getAdminDeliveryById
 );
 
 export default router;

@@ -2,18 +2,23 @@ import { useState } from "react";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
-import AdminSidebar from "./components/AdminSidebar";
 import AdminDeliveries from "./pages/AdminDeliveries";
 import AdminDrivers from "./pages/AdminDrivers";
-
+import AdminSidebar from "./components/AdminSidebar";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("adminToken")
+  );
+
   const [currentPage, setCurrentPage] = useState("dashboard");
 
-  const isLoggedIn = !!localStorage.getItem("adminToken");
-
   if (!isLoggedIn) {
-    return <AdminLogin />;
+    return (
+      <AdminLogin
+        onLogin={() => setIsLoggedIn(true)}
+      />
+    );
   }
 
   return (
@@ -25,7 +30,7 @@ function App() {
         onDrivers={() => setCurrentPage("drivers")}
         onLogout={() => {
           localStorage.removeItem("adminToken");
-          window.location.reload();
+          setIsLoggedIn(false);
         }}
       />
 
@@ -33,7 +38,9 @@ function App() {
         {currentPage === "dashboard" && <AdminDashboard />}
 
         {currentPage === "users" && <AdminUsers />}
+
         {currentPage === "deliveries" && <AdminDeliveries />}
+
         {currentPage === "drivers" && <AdminDrivers />}
       </main>
     </div>

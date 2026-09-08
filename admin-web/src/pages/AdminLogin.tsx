@@ -1,7 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
 
-export default function AdminLogin() {
+type AdminLoginProps = {
+  onLogin: () => void;
+};
+
+export default function AdminLogin({
+  onLogin,
+}: AdminLoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,11 +24,19 @@ export default function AdminLogin() {
         }
       );
 
-      console.log("Admin login response:", response.data);
+      console.log(
+        "Admin login response:",
+        response.data
+      );
 
-      localStorage.setItem("adminToken", response.data.token);
-      
+      localStorage.setItem(
+        "adminToken",
+        response.data.token
+      );
+
       alert("Login successful!");
+
+      onLogin();
     } catch (error: any) {
       console.error("Admin login error:", error);
 
@@ -43,14 +57,18 @@ export default function AdminLogin() {
         type="email"
         placeholder="Admin Email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) =>
+          setEmail(e.target.value)
+        }
       />
 
       <input
         type="password"
-        placeholder="Password"
+        placeholder="Admin Password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e) =>
+          setPassword(e.target.value)
+        }
       />
 
       <button
