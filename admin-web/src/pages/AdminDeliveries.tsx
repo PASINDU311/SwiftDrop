@@ -21,6 +21,8 @@ export default function AdminDeliveries() {
   const [loading, setLoading] = useState(true);
   const [selectedDeliveryId, setSelectedDeliveryId] =
     useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchDeliveries = async () => {
@@ -69,6 +71,24 @@ export default function AdminDeliveries() {
   return (
     <div>
       <h1>Delivery Management</h1>
+      <input
+        type="text"
+        placeholder="Search by ID or customer name..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+      >
+        <option value="all">All Deliveries</option>
+        <option value="pending">Pending</option>
+        <option value="accepted">Accepted</option>
+        <option value="picked_up">Picked Up</option>
+        <option value="in_transit">In Transit</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
 
       <table>
         <thead>
@@ -86,7 +106,20 @@ export default function AdminDeliveries() {
         </thead>
 
         <tbody>
-          {deliveries.map((delivery) => (
+            {deliveries
+                .filter((delivery) => {
+                    const matchesStatus =
+                        statusFilter === "all" || delivery.status === statusFilter;
+
+                    const matchesSearch =
+                        delivery.id.toString().includes(searchTerm.toLowerCase()) ||
+                        (delivery.customer_name || "")
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase());
+
+                        return matchesStatus && matchesSearch;
+                    })
+                    .map((delivery) => (
             <tr key={delivery.id}>
               <td>{delivery.id}</td>
 
