@@ -16,6 +16,8 @@ import {
   updateDeliveryStatus,
 } from "../api/api";
 
+import DriverHistoryScreen from "./DriverHistoryScreen";
+
 type Delivery = {
   id: number;
   customer_id: number;
@@ -46,6 +48,8 @@ export default function DriverHomeScreen({
 
   const [myDeliveries, setMyDeliveries] =
     useState<Delivery[]>([]);
+
+  const [showHistory, setShowHistory] = useState(false);
 
   const [loading, setLoading] =
     useState(true);
@@ -200,6 +204,14 @@ export default function DriverHomeScreen({
       );
     }
   };
+
+  if (showHistory) {
+    return (
+      <DriverHistoryScreen
+        onBack={() => setShowHistory(false)}
+      />
+    );
+  }
 
   const renderDeliveryCard = (
     item: Delivery,
@@ -377,6 +389,15 @@ export default function DriverHomeScreen({
           </Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity
+        style={styles.historyButton}
+        onPress={() => setShowHistory(true)}
+      >
+        <Text style={styles.historyButtonText}>
+          📋 Delivery History
+        </Text>
+      </TouchableOpacity>
 
       {loading ? (
         <View style={styles.center}>

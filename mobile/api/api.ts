@@ -132,6 +132,11 @@ export async function getMyDriverDeliveries() {
   return response.data;
 }
 
+export async function getDriverDeliveryHistory() {
+  const response = await API.get("/deliveries/driver/history");
+  return response.data;
+}
+
 export async function acceptDelivery(
   deliveryId: number
 ) {

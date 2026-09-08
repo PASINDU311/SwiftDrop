@@ -7,6 +7,7 @@ import {
   getAvailableDeliveries,
   acceptDelivery,
   updateDeliveryStatus,
+  getDriverDeliveryHistory,
   getMyDriverDeliveries,
 } from "../controllers/deliveryController";
 import { authenticateToken } from "../middleware/authMiddleware";
@@ -35,6 +36,12 @@ router.get(
   "/driver/my-deliveries",
   authenticateToken,
   getMyDriverDeliveries
+);
+
+router.get(
+  "/driver/history",
+  authenticateToken,
+  getDriverDeliveryHistory
 );
 
 router.patch(

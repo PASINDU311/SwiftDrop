@@ -351,6 +351,59 @@ export async function getMyDriverDeliveries(
   }
 }
 
+export async function getDriverDeliveryHistory(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    const driverId = req.user?.id;
+
+    if (!driverId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    if (req.user?.role !== "driver") {
+      return res.status(403).json({
+        message: "Driver access required",
+      });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT
+        id,
+        customer_id,
+        pickup_address,
+        delivery_address,
+        package_description,
+        package_weight,
+        status,
+        driver_id,
+        created_at,
+        updated_at
+       FROM deliveries
+       WHERE driver_id = ?
+       AND status IN ('delivered', 'cancelled')
+       ORDER BY updated_at DESC`,
+      [driverId]
+    );
+
+    return res.json({
+      deliveries: rows,
+    });
+  } catch (error) {
+    console.error(
+      "Get driver delivery history error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to fetch driver delivery history",
+    });
+  }
+}
+
 export async function getDeliveryById(
   req: AuthRequest,
   res: Response
