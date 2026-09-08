@@ -79,3 +79,38 @@ export async function getAdminDashboard(
     });
   }
 }
+
+export async function getAllUsers(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    const [users] = await pool.query(
+      `SELECT
+        id,
+        name,
+        email,
+        phone,
+        role,
+        created_at
+       FROM users
+       ORDER BY created_at DESC`
+    );
+
+    return res.json({
+      users,
+    });
+  } catch (error) {
+    console.error("Get all users error:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch users",
+    });
+  }
+}

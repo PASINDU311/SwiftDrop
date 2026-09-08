@@ -47,3 +47,44 @@ h2 {
   margin: 0 0 24px;
   font-size: 20px;
 }
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  #root {
+    padding: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #1f2937;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #374151;
+}
+
+th {
+  background: #111827;
+  font-weight: 600;
+}
+
+tbody tr:hover {
+  background: #273449;
+}
