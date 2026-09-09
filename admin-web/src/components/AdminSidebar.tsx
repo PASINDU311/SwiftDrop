@@ -21,7 +21,7 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   return (
     <aside
-      className={`flex min-h-screen w-64 flex-col border-r transition-colors duration-300 ${
+      className={`sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r transition-colors duration-300 ${
         darkMode
           ? "border-slate-800 bg-slate-950"
           : "border-slate-200 bg-white"
