@@ -15,6 +15,7 @@ type Delivery = {
   delivery_address: string;
   package_description: string | null;
   package_weight: number | null;
+  delivery_fee: number | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -25,8 +26,11 @@ export default function DriverHistoryScreen({
 }: {
   onBack: () => void;
 }) {
-  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [deliveries, setDeliveries] =
+    useState<Delivery[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
     loadHistory();
@@ -34,10 +38,17 @@ export default function DriverHistoryScreen({
 
   const loadHistory = async () => {
     try {
-      const data = await getDriverDeliveryHistory();
-      setDeliveries(data.deliveries || []);
+      const data =
+        await getDriverDeliveryHistory();
+
+      setDeliveries(
+        data.deliveries || []
+      );
     } catch (error) {
-      console.error("Load driver history error:", error);
+      console.error(
+        "Load driver history error:",
+        error
+      );
     } finally {
       setLoading(false);
     }
@@ -47,21 +58,28 @@ export default function DriverHistoryScreen({
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Loading history...</Text>
+
+        <Text style={styles.loadingText}>
+          Loading history...
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-        <TouchableOpacity
-            style={styles.backButton}
-            onPress={onBack}
-        >
-            <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={onBack}
+      >
+        <Text style={styles.backButtonText}>
+          ← Back
+        </Text>
+      </TouchableOpacity>
 
-        <Text style={styles.title}>Delivery History</Text>
+      <Text style={styles.title}>
+        Delivery History
+      </Text>
 
       {deliveries.length === 0 ? (
         <View style={styles.center}>
@@ -72,43 +90,95 @@ export default function DriverHistoryScreen({
       ) : (
         <FlatList
           data={deliveries}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.list}
+          keyExtractor={(item) =>
+            item.id.toString()
+          }
+          contentContainerStyle={
+            styles.list
+          }
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={styles.card}>
+              {/* HEADER */}
               <View style={styles.header}>
-                <Text style={styles.deliveryId}>
+                <Text
+                  style={styles.deliveryId}
+                >
                   Delivery #{item.id}
                 </Text>
 
                 <Text style={styles.status}>
-                  {item.status.replace("_", " ").toUpperCase()}
+                  {item.status
+                    .replace("_", " ")
+                    .toUpperCase()}
                 </Text>
               </View>
 
-              <Text style={styles.label}>Pickup</Text>
+              {/* PICKUP */}
+              <Text style={styles.label}>
+                Pickup
+              </Text>
+
               <Text style={styles.address}>
                 {item.pickup_address}
               </Text>
 
-              <Text style={styles.label}>Delivery</Text>
+              {/* DELIVERY */}
+              <Text style={styles.label}>
+                Delivery
+              </Text>
+
               <Text style={styles.address}>
                 {item.delivery_address}
               </Text>
 
+              {/* PACKAGE */}
               {item.package_description && (
                 <>
-                  <Text style={styles.label}>Package</Text>
-                  <Text style={styles.address}>
+                  <Text
+                    style={styles.label}
+                  >
+                    Package
+                  </Text>
+
+                  <Text
+                    style={styles.address}
+                  >
                     {item.package_description}
                   </Text>
                 </>
               )}
 
+              {/* WEIGHT */}
               {item.package_weight !== null && (
                 <Text style={styles.weight}>
-                  Weight: {item.package_weight} kg
+                  Weight:{" "}
+                  {item.package_weight} kg
                 </Text>
+              )}
+
+              {/* DELIVERY FEE */}
+              {item.delivery_fee !== null && (
+                <View
+                  style={
+                    styles.feeContainer
+                  }
+                >
+                  <Text
+                    style={styles.feeLabel}
+                  >
+                    Delivery Fee
+                  </Text>
+
+                  <Text
+                    style={styles.feeText}
+                  >
+                    Rs.{" "}
+                    {Number(
+                      item.delivery_fee
+                    ).toFixed(2)}
+                  </Text>
+                </View>
               )}
             </View>
           )}
@@ -133,7 +203,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     fontWeight: "600",
- },
+  },
 
   title: {
     fontSize: 28,
@@ -185,6 +255,27 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#666",
     marginTop: 12,
+  },
+
+  feeContainer: {
+    marginTop: 15,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#eeeeee",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  feeLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#666",
+  },
+
+  feeText: {
+    fontSize: 17,
+    fontWeight: "800",
   },
 
   center: {
