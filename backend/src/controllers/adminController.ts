@@ -62,6 +62,7 @@ export async function getAdminDashboard(
         d.id,
         d.pickup_address,
         d.delivery_address,
+        d.delivery_fee,
         d.status,
         d.created_at,
         customer.name AS customer_name,
@@ -83,8 +84,10 @@ export async function getAdminDashboard(
         total_deliveries: deliveries[0].total_deliveries,
         pending_deliveries: pending[0].pending_deliveries,
         active_deliveries: active[0].active_deliveries,
-        completed_deliveries: completed[0].completed_deliveries,
+        completed_deliveries:
+          completed[0].completed_deliveries,
       },
+
       recent_deliveries: recentDeliveries,
     });
   } catch (error) {
@@ -126,7 +129,10 @@ export async function getAllUsers(
       users,
     });
   } catch (error) {
-    console.error("Get all users error:", error);
+    console.error(
+      "Get all users error:",
+      error
+    );
 
     return res.status(500).json({
       message: "Failed to fetch users",
@@ -142,7 +148,9 @@ export async function getAdminUserById(
     if (req.user?.role !== "admin") {
       return res
         .status(403)
-        .json({ message: "Admin access required" });
+        .json({
+          message: "Admin access required",
+        });
     }
 
     const userId = req.params.id;
@@ -164,7 +172,9 @@ export async function getAdminUserById(
     if (rows.length === 0) {
       return res
         .status(404)
-        .json({ message: "User not found" });
+        .json({
+          message: "User not found",
+        });
     }
 
     return res.json({
@@ -179,7 +189,8 @@ export async function getAdminUserById(
     return res
       .status(500)
       .json({
-        message: "Failed to fetch user details",
+        message:
+          "Failed to fetch user details",
       });
   }
 }
@@ -192,7 +203,9 @@ export async function getAdminDriverById(
     if (req.user?.role !== "admin") {
       return res
         .status(403)
-        .json({ message: "Admin access required" });
+        .json({
+          message: "Admin access required",
+        });
     }
 
     const driverId = req.params.id;
@@ -214,7 +227,9 @@ export async function getAdminDriverById(
     if (rows.length === 0) {
       return res
         .status(404)
-        .json({ message: "Driver not found" });
+        .json({
+          message: "Driver not found",
+        });
     }
 
     return res.json({
@@ -229,7 +244,8 @@ export async function getAdminDriverById(
     return res
       .status(500)
       .json({
-        message: "Failed to fetch driver details",
+        message:
+          "Failed to fetch driver details",
       });
   }
 }
@@ -254,6 +270,7 @@ export async function getAllDeliveries(
         d.delivery_address,
         d.package_description,
         d.package_weight,
+        d.delivery_fee,
         d.status,
         d.created_at,
         d.updated_at,
@@ -271,7 +288,10 @@ export async function getAllDeliveries(
       deliveries,
     });
   } catch (error) {
-    console.error("Get all deliveries error:", error);
+    console.error(
+      "Get all deliveries error:",
+      error
+    );
 
     return res.status(500).json({
       message: "Failed to fetch deliveries",
@@ -306,7 +326,10 @@ export async function getAllDrivers(
       drivers,
     });
   } catch (error) {
-    console.error("Get all drivers error:", error);
+    console.error(
+      "Get all drivers error:",
+      error
+    );
 
     return res.status(500).json({
       message: "Failed to fetch drivers",
@@ -336,6 +359,7 @@ export async function getAdminDeliveryById(
         d.delivery_address,
         d.package_description,
         d.package_weight,
+        d.delivery_fee,
         d.status,
         d.created_at,
         d.updated_at,
@@ -370,7 +394,8 @@ export async function getAdminDeliveryById(
     );
 
     return res.status(500).json({
-      message: "Failed to fetch delivery details",
+      message:
+        "Failed to fetch delivery details",
     });
   }
 }

@@ -9,6 +9,7 @@ type Delivery = {
   delivery_address: string;
   package_description: string;
   package_weight: number;
+  delivery_fee: number | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -70,7 +71,7 @@ function StatusBadge({ status }: { status: string }) {
 function TableSkeletonRow() {
   return (
     <tr className="animate-pulse">
-      {Array.from({ length: 9 }).map((_, i) => (
+      {Array.from({ length: 10 }).map((_, i) => (
         <td key={i} className="px-4 py-4">
           <div
             className="h-3 rounded bg-slate-200 dark:bg-slate-800"
@@ -134,7 +135,9 @@ export default function AdminDeliveries() {
 
       const matchesSearch =
         delivery.id.toString().includes(term) ||
-        (delivery.customer_name || "").toLowerCase().includes(term);
+        (delivery.customer_name || "")
+          .toLowerCase()
+          .includes(term);
 
       return matchesStatus && matchesSearch;
     });
@@ -152,7 +155,6 @@ export default function AdminDeliveries() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl">
-
         {/* Header */}
         <div className="mb-6 flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -168,7 +170,6 @@ export default function AdminDeliveries() {
 
         {/* Toolbar */}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
           {/* Search */}
           <div className="relative w-full sm:max-w-xs">
             <svg
@@ -222,8 +223,7 @@ export default function AdminDeliveries() {
         {/* Table */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-sm">
-
+            <table className="w-full min-w-[1050px] text-left text-sm">
               {/* Table Header */}
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-800/50">
@@ -235,11 +235,12 @@ export default function AdminDeliveries() {
                     "Destination",
                     "Package",
                     "Weight",
+                    "Fee",
                     "Status",
                     "",
-                  ].map((heading) => (
+                  ].map((heading, index) => (
                     <th
-                      key={heading}
+                      key={`${heading}-${index}`}
                       className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400"
                     >
                       {heading}
@@ -257,7 +258,7 @@ export default function AdminDeliveries() {
                 ) : filteredDeliveries.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={9}
+                      colSpan={10}
                       className="px-4 py-16 text-center"
                     >
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -323,6 +324,15 @@ export default function AdminDeliveries() {
                         {delivery.package_weight} kg
                       </td>
 
+                      {/* Fee */}
+                      <td className="whitespace-nowrap px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">
+                        {delivery.delivery_fee !== null
+                          ? `Rs. ${Number(
+                              delivery.delivery_fee
+                            ).toFixed(2)}`
+                          : "—"}
+                      </td>
+
                       {/* Status */}
                       <td className="whitespace-nowrap px-4 py-3">
                         <StatusBadge status={delivery.status} />
@@ -343,11 +353,9 @@ export default function AdminDeliveries() {
                   ))
                 )}
               </tbody>
-
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );

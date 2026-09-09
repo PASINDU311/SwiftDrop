@@ -19,6 +19,7 @@ type Delivery = {
   delivery_address: string;
   package_description: string | null;
   package_weight: number | null;
+  delivery_fee: number | null;
   status: string;
   driver_id: number | null;
   created_at: string;
@@ -43,14 +44,18 @@ export default function DeliveryDetailsScreen({
   const [delivery, setDelivery] =
     useState<Delivery | null>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [cancelling, setCancelling] = useState(false);
+  const [loading, setLoading] =
+    useState(true);
+
+  const [cancelling, setCancelling] =
+    useState(false);
 
   const loadDelivery = async () => {
     try {
       setLoading(true);
 
-      const data = await getDeliveryById(deliveryId);
+      const data =
+        await getDeliveryById(deliveryId);
 
       setDelivery(data.delivery);
 
@@ -61,7 +66,8 @@ export default function DeliveryDetailsScreen({
     } catch (error: any) {
       console.error(
         "❌ Failed to load delivery:",
-        error.response?.data || error.message
+        error.response?.data ||
+          error.message
       );
 
       Alert.alert(
@@ -96,7 +102,9 @@ export default function DeliveryDetailsScreen({
             try {
               setCancelling(true);
 
-              await cancelDelivery(deliveryId);
+              await cancelDelivery(
+                deliveryId
+              );
 
               console.log(
                 "✅ Delivery cancelled successfully"
@@ -146,47 +154,61 @@ export default function DeliveryDetailsScreen({
   }
 
   return (
-<ScrollView
-  style={styles.container}
-  contentContainerStyle={styles.content}
->
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* BACK */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={onBack}
       >
-        <Text style={styles.backText}>← Back</Text>
+        <Text style={styles.backText}>
+          ← Back
+        </Text>
       </TouchableOpacity>
 
+      {/* TITLE */}
       <Text style={styles.title}>
         Delivery #{delivery.id}
       </Text>
 
+      {/* STATUS */}
       <View style={styles.statusBadge}>
         <Text style={styles.statusText}>
           {delivery.status}
         </Text>
       </View>
 
+      {/* DELIVERY ROUTE */}
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>
           Delivery Route
         </Text>
 
-        <Text style={styles.label}>Pickup</Text>
+        <Text style={styles.label}>
+          Pickup
+        </Text>
 
         <Text style={styles.address}>
           {delivery.pickup_address}
         </Text>
 
-        <Text style={styles.arrow}>↓</Text>
+        <Text style={styles.arrow}>
+          ↓
+        </Text>
 
-        <Text style={styles.label}>Delivery</Text>
+        <Text style={styles.label}>
+          Delivery
+        </Text>
 
         <Text style={styles.address}>
           {delivery.delivery_address}
         </Text>
       </View>
 
+      {/* PACKAGE INFORMATION */}
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>
           Package Information
@@ -204,74 +226,119 @@ export default function DeliveryDetailsScreen({
             ? `${delivery.package_weight} kg`
             : "Not specified"}
         </Text>
+
+        {/* DELIVERY FEE */}
+        {delivery.delivery_fee !== null && (
+          <View
+            style={styles.feeContainer}
+          >
+            <Text style={styles.feeLabel}>
+              Delivery Fee
+            </Text>
+
+            <Text style={styles.feeText}>
+              Rs.{" "}
+              {Number(
+                delivery.delivery_fee
+              ).toFixed(2)}
+            </Text>
+          </View>
+        )}
       </View>
 
+      {/* DELIVERY STATUS */}
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>
-            Delivery Status
+          Delivery Status
         </Text>
 
-        {deliveryStatuses.map((status, index) => {
+        {deliveryStatuses.map(
+          (status, index) => {
             const currentIndex =
-                deliveryStatuses.indexOf(delivery.status);
+              deliveryStatuses.indexOf(
+                delivery.status
+              );
 
             const isCompleted =
-                index <= currentIndex;
+              index <= currentIndex;
 
             return (
+              <View
+                key={status}
+                style={styles.statusRow}
+              >
                 <View
-                    key={status}
-                    style={styles.statusRow}
+                  style={[
+                    styles.statusCircle,
+                    isCompleted &&
+                      styles.statusCircleActive,
+                  ]}
                 >
-                    <View
-                        style={[
-                            styles.statusCircle,
-                            isCompleted &&
-                                styles.statusCircleActive,
-                        ]}
-                    >
-                        <Text style={styles.statusCircleText}>
-                            {isCompleted ? "✓" : index + 1}
-                        </Text>
-                    </View>
-
-                    <Text
-                        style={[
-                            styles.statusLabel,
-                            isCompleted &&
-                                styles.statusLabelActive,
-                        ]}
-                    >
-                        {status.replace("_", " ")}
-                    </Text>
+                  <Text
+                    style={
+                      styles.statusCircleText
+                    }
+                  >
+                    {isCompleted
+                      ? "✓"
+                      : index + 1}
+                  </Text>
                 </View>
-                );
-            })}
 
-            {delivery.status === "cancelled" && (
-                <Text style={styles.cancelledText}>
-                    This delivery has been cancelled.
+                <Text
+                  style={[
+                    styles.statusLabel,
+                    isCompleted &&
+                      styles.statusLabelActive,
+                  ]}
+                >
+                  {status.replace(
+                    "_",
+                    " "
+                  )}
                 </Text>
-            )}
+              </View>
+            );
+          }
+        )}
 
-            {delivery.driver_id ? (
-                <Text style={styles.statusInfo}>
-                    Driver assigned
-                </Text>
-            ) : (
-                <Text style={styles.statusInfo}>
-                    Waiting for driver
-                </Text>
-            )}
-         </View>
+        {/* CANCELLED */}
+        {delivery.status ===
+          "cancelled" && (
+          <Text
+            style={styles.cancelledText}
+          >
+            This delivery has been cancelled.
+          </Text>
+        )}
 
-      {delivery.status === "pending" && (
+        {/* DRIVER */}
+        {delivery.driver_id ? (
+          <Text
+            style={styles.statusInfo}
+          >
+            Driver assigned
+          </Text>
+        ) : (
+          <Text
+            style={styles.statusInfo}
+          >
+            Waiting for driver
+          </Text>
+        )}
+      </View>
+
+      {/* CANCEL BUTTON */}
+      {delivery.status ===
+        "pending" && (
         <TouchableOpacity
           style={styles.cancelButton}
           onPress={handleCancelDelivery}
           disabled={cancelling}
         >
-          <Text style={styles.cancelButtonText}>
+          <Text
+            style={styles.cancelButtonText}
+          >
             {cancelling
               ? "Cancelling..."
               : "Cancel Delivery"}
@@ -372,6 +439,27 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#555",
     marginBottom: 10,
+  },
+
+  feeContainer: {
+    marginTop: 8,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#eeeeee",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  feeLabel: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#666",
+  },
+
+  feeText: {
+    fontSize: 19,
+    fontWeight: "800",
   },
 
   statusInfo: {

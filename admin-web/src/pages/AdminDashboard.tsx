@@ -5,6 +5,7 @@ type RecentDelivery = {
   id: number;
   pickup_address: string;
   delivery_address: string;
+  delivery_fee: number | null;
   status: string;
   created_at: string;
   customer_name: string | null;
@@ -14,19 +15,28 @@ type RecentDelivery = {
 const STATUS_STYLES: Record<string, string> = {
   pending:
     "bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20",
+
   accepted:
     "bg-sky-50 text-sky-700 ring-sky-600/20 dark:bg-sky-400/10 dark:text-sky-400 dark:ring-sky-400/20",
+
   picked_up:
     "bg-violet-50 text-violet-700 ring-violet-600/20 dark:bg-violet-400/10 dark:text-violet-400 dark:ring-violet-400/20",
+
   in_transit:
     "bg-orange-50 text-orange-700 ring-orange-600/20 dark:bg-orange-400/10 dark:text-orange-400 dark:ring-orange-400/20",
+
   delivered:
     "bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20",
+
   cancelled:
     "bg-rose-50 text-rose-700 ring-rose-600/20 dark:bg-rose-400/10 dark:text-rose-400 dark:ring-rose-400/20",
 };
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({
+  status,
+}: {
+  status: string;
+}) {
   const style =
     STATUS_STYLES[status] ??
     "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-600/30";
@@ -57,7 +67,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const token = localStorage.getItem("adminToken");
+        const token =
+          localStorage.getItem("adminToken");
 
         const response = await fetch(
           "http://192.168.1.37:5000/api/admin/dashboard",
@@ -70,9 +81,15 @@ export default function AdminDashboard() {
 
         const data = await response.json();
 
-        console.log("Admin dashboard data:", data);
+        console.log(
+          "Admin dashboard data:",
+          data
+        );
 
-        if (response.ok && data.statistics) {
+        if (
+          response.ok &&
+          data.statistics
+        ) {
           setStats(data.statistics);
 
           setRecentDeliveries(
@@ -211,7 +228,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="overflow-x-auto">
 
-                <table className="w-full min-w-[900px] text-left text-sm">
+                <table className="w-full min-w-[1000px] text-left text-sm">
 
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-900">
@@ -233,6 +250,10 @@ export default function AdminDashboard() {
                       </th>
 
                       <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        Fee
+                      </th>
+
+                      <th className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         Status
                       </th>
 
@@ -245,76 +266,98 @@ export default function AdminDashboard() {
 
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
 
-                    {recentDeliveries.map((delivery) => (
-                      <tr
-                        key={delivery.id}
-                        className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-900"
-                      >
+                    {recentDeliveries.map(
+                      (delivery) => (
+                        <tr
+                          key={delivery.id}
+                          className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-900"
+                        >
 
-                        {/* ID */}
-                        <td className="whitespace-nowrap px-4 py-4 font-medium text-slate-900 dark:text-white">
-                          #{delivery.id}
-                        </td>
+                          {/* ID */}
+                          <td className="whitespace-nowrap px-4 py-4 font-medium text-slate-900 dark:text-white">
+                            #{delivery.id}
+                          </td>
 
-                        {/* Customer */}
-                        <td className="whitespace-nowrap px-4 py-4 text-slate-700 dark:text-slate-300">
-                          {delivery.customer_name || (
-                            <span className="text-slate-400 dark:text-slate-600">
-                              —
-                            </span>
-                          )}
-                        </td>
+                          {/* Customer */}
+                          <td className="whitespace-nowrap px-4 py-4 text-slate-700 dark:text-slate-300">
+                            {delivery.customer_name || (
+                              <span className="text-slate-400 dark:text-slate-600">
+                                —
+                              </span>
+                            )}
+                          </td>
 
-                        {/* Route */}
-                        <td className="px-4 py-4">
-                          <div className="max-w-[320px]">
+                          {/* Route */}
+                          <td className="px-4 py-4">
+                            <div className="max-w-[320px]">
 
-                            <p
-                              className="truncate text-sm font-medium text-slate-700 dark:text-slate-300"
-                              title={delivery.pickup_address}
-                            >
-                              {delivery.pickup_address}
-                            </p>
+                              <p
+                                className="truncate text-sm font-medium text-slate-700 dark:text-slate-300"
+                                title={
+                                  delivery.pickup_address
+                                }
+                              >
+                                {
+                                  delivery.pickup_address
+                                }
+                              </p>
 
-                            <p className="my-1 text-xs text-slate-400 dark:text-slate-600">
-                              ↓
-                            </p>
+                              <p className="my-1 text-xs text-slate-400 dark:text-slate-600">
+                                ↓
+                              </p>
 
-                            <p
-                              className="truncate text-sm text-slate-500 dark:text-slate-400"
-                              title={delivery.delivery_address}
-                            >
-                              {delivery.delivery_address}
-                            </p>
+                              <p
+                                className="truncate text-sm text-slate-500 dark:text-slate-400"
+                                title={
+                                  delivery.delivery_address
+                                }
+                              >
+                                {
+                                  delivery.delivery_address
+                                }
+                              </p>
 
-                          </div>
-                        </td>
+                            </div>
+                          </td>
 
-                        {/* Driver */}
-                        <td className="whitespace-nowrap px-4 py-4 text-slate-600 dark:text-slate-300">
-                          {delivery.driver_name || (
-                            <span className="text-slate-400 dark:text-slate-600">
-                              Unassigned
-                            </span>
-                          )}
-                        </td>
+                          {/* Driver */}
+                          <td className="whitespace-nowrap px-4 py-4 text-slate-600 dark:text-slate-300">
+                            {delivery.driver_name || (
+                              <span className="text-slate-400 dark:text-slate-600">
+                                Unassigned
+                              </span>
+                            )}
+                          </td>
 
-                        {/* Status */}
-                        <td className="whitespace-nowrap px-4 py-4">
-                          <StatusBadge
-                            status={delivery.status}
-                          />
-                        </td>
+                          {/* Fee */}
+                          <td className="whitespace-nowrap px-4 py-4 font-semibold text-slate-900 dark:text-white">
+                            {delivery.delivery_fee !==
+                            null
+                              ? `Rs. ${Number(
+                                  delivery.delivery_fee
+                                ).toFixed(2)}`
+                              : "—"}
+                          </td>
 
-                        {/* Created */}
-                        <td className="whitespace-nowrap px-4 py-4 text-slate-500 dark:text-slate-400">
-                          {new Date(
-                            delivery.created_at
-                          ).toLocaleDateString()}
-                        </td>
+                          {/* Status */}
+                          <td className="whitespace-nowrap px-4 py-4">
+                            <StatusBadge
+                              status={
+                                delivery.status
+                              }
+                            />
+                          </td>
 
-                      </tr>
-                    ))}
+                          {/* Created */}
+                          <td className="whitespace-nowrap px-4 py-4 text-slate-500 dark:text-slate-400">
+                            {new Date(
+                              delivery.created_at
+                            ).toLocaleDateString()}
+                          </td>
+
+                        </tr>
+                      )
+                    )}
 
                   </tbody>
 
