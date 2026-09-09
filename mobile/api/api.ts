@@ -22,6 +22,7 @@ export async function testBackendConnection() {
       "❌ Backend API connection failed:",
       error
     );
+
     throw error;
   }
 }
@@ -30,10 +31,13 @@ export async function loginUser(
   email: string,
   password: string
 ) {
-  const response = await API.post("/auth/login", {
-    email,
-    password,
-  });
+  const response = await API.post(
+    "/auth/login",
+    {
+      email,
+      password,
+    }
+  );
 
   const { token, user } = response.data;
 
@@ -76,14 +80,18 @@ export async function logoutUser() {
 
 export async function getStoredUser() {
   const token =
-    await SecureStore.getItemAsync("auth_token");
+    await SecureStore.getItemAsync(
+      "auth_token"
+    );
 
   if (!token) {
     return null;
   }
 
   try {
-    const response = await API.get("/auth/me");
+    const response = await API.get(
+      "/auth/me"
+    );
 
     return response.data.user;
   } catch (error) {
@@ -98,7 +106,9 @@ export async function getStoredUser() {
 API.interceptors.request.use(
   async (config) => {
     const token =
-      await SecureStore.getItemAsync("auth_token");
+      await SecureStore.getItemAsync(
+        "auth_token"
+      );
 
     if (token) {
       config.headers.set(
@@ -115,7 +125,9 @@ API.interceptors.request.use(
 );
 
 export async function getUsers() {
-  const response = await API.get("/users");
+  const response = await API.get(
+    "/users"
+  );
 
   return response.data;
 }
@@ -225,6 +237,14 @@ export async function submitDriverApplication(
   const response = await API.post(
     "/driver-applications",
     data
+  );
+
+  return response.data;
+}
+
+export async function getMyDriverApplication() {
+  const response = await API.get(
+    "/driver-applications/my-application"
   );
 
   return response.data;

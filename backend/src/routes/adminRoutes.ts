@@ -12,6 +12,7 @@ import {
   getAdminDriverById,
   assignDriverToDelivery,
   getDriverApplications,
+  reviewDriverApplication,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -50,6 +51,12 @@ router.get(
   "/driver-applications",
   authenticateToken,
   getDriverApplications
+);
+
+router.patch(
+  "/driver-applications/:id/review",
+  authenticateToken,
+  reviewDriverApplication
 );
 
 router.get(

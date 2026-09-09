@@ -2,6 +2,13 @@ import { Response } from "express";
 import { AuthRequest } from "../middleware/authMiddleware";
 import pool from "../config/db";
 
+const allowedVehicleTypes = [
+  "Motorbike",
+  "Car",
+  "Van",
+  "Truck",
+];
+
 export async function submitDriverApplication(
   req: AuthRequest,
   res: Response
@@ -37,6 +44,15 @@ export async function submitDriverApplication(
       return res.status(400).json({
         message:
           "Vehicle type, vehicle number and license number are required",
+      });
+    }
+
+    if (
+      !allowedVehicleTypes.includes(vehicle_type)
+    ) {
+      return res.status(400).json({
+        message:
+          "Invalid vehicle type",
       });
     }
 
@@ -88,7 +104,60 @@ export async function submitDriverApplication(
     );
 
     return res.status(500).json({
-      message: "Failed to submit driver application",
+      message:
+        "Failed to submit driver application",
+    });
+  }
+}
+
+export async function getMyDriverApplication(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const [applications]: any =
+      await pool.query(
+        `SELECT
+           id,
+           vehicle_type,
+           vehicle_number,
+           license_number,
+           status,
+           submitted_at,
+           reviewed_at
+         FROM driver_applications
+         WHERE user_id = ?
+         ORDER BY id DESC
+         LIMIT 1`,
+        [userId]
+      );
+
+    if (applications.length === 0) {
+      return res.status(200).json({
+        application: null,
+      });
+    }
+
+    return res.status(200).json({
+      application: applications[0],
+    });
+  } catch (error) {
+    console.error(
+      "Get driver application error:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Failed to fetch driver application",
     });
   }
 }

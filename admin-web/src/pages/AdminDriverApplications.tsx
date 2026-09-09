@@ -22,6 +22,8 @@ function AdminDriverApplications() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reviewingId, setReviewingId] =
+    useState<number | null>(null);
 
   const loadApplications = async () => {
     try {
@@ -62,6 +64,58 @@ function AdminDriverApplications() {
     loadApplications();
   }, []);
 
+  const handleReview = async (
+    applicationId: number,
+    status: "approved" | "rejected"
+  ) => {
+    const action =
+      status === "approved"
+        ? "approve"
+        : "reject";
+
+    const confirmed = window.confirm(
+      `Are you sure you want to ${action} this driver application?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setReviewingId(applicationId);
+      setError("");
+
+      const token =
+        localStorage.getItem("adminToken");
+
+      await axios.patch(
+        `http://localhost:5000/api/admin/driver-applications/${applicationId}/review`,
+        {
+          status,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      await loadApplications();
+    } catch (error: any) {
+      console.error(
+        "Failed to review driver application:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          `Failed to ${action} driver application`
+      );
+    } finally {
+      setReviewingId(null);
+    }
+  };
+
   const getStatusClass = (
     status: DriverApplication["status"]
   ) => {
@@ -93,9 +147,10 @@ function AdminDriverApplications() {
 
         <button
           onClick={loadApplications}
-          className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          disabled={loading}
+          className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-gray-200"
         >
-          Refresh
+          {loading ? "Loading..." : "Refresh"}
         </button>
       </div>
 
@@ -163,6 +218,10 @@ function AdminDriverApplications() {
                   <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Submitted
                   </th>
+
+                  <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -229,6 +288,55 @@ function AdminDriverApplications() {
                         {new Date(
                           application.submitted_at
                         ).toLocaleDateString()}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="whitespace-nowrap px-6 py-4">
+                        {application.status ===
+                        "pending" ? (
+                          <div className="flex items-center gap-2">
+                            {/* Approve */}
+                            <button
+                              onClick={() =>
+                                handleReview(
+                                  application.id,
+                                  "approved"
+                                )
+                              }
+                              disabled={
+                                reviewingId ===
+                                application.id
+                              }
+                              className="rounded-lg bg-green-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {reviewingId ===
+                              application.id
+                                ? "Processing..."
+                                : "Approve"}
+                            </button>
+
+                            {/* Reject */}
+                            <button
+                              onClick={() =>
+                                handleReview(
+                                  application.id,
+                                  "rejected"
+                                )
+                              }
+                              disabled={
+                                reviewingId ===
+                                application.id
+                              }
+                              className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs font-medium text-gray-400">
+                            Reviewed
+                          </span>
+                        )}
                       </td>
                     </tr>
                   )

@@ -522,3 +522,93 @@ export async function getDriverApplications(
     });
   }
 }
+
+export async function reviewDriverApplication(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    const applicationId = Number(req.params.id);
+    const { status } = req.body;
+
+    if (!applicationId) {
+      return res.status(400).json({
+        message: "Invalid application ID",
+      });
+    }
+
+    if (
+      status !== "approved" &&
+      status !== "rejected"
+    ) {
+      return res.status(400).json({
+        message:
+          "Status must be approved or rejected",
+      });
+    }
+
+    const [applications]: any =
+      await pool.query(
+        `SELECT id, user_id, status
+         FROM driver_applications
+         WHERE id = ?
+         LIMIT 1`,
+        [applicationId]
+      );
+
+    if (applications.length === 0) {
+      return res.status(404).json({
+        message: "Driver application not found",
+      });
+    }
+
+    const application = applications[0];
+
+    if (application.status !== "pending") {
+      return res.status(409).json({
+        message:
+          "Only pending applications can be reviewed",
+      });
+    }
+
+    if (status === "approved") {
+      await pool.query(
+        `UPDATE users
+         SET role = 'driver'
+         WHERE id = ?`,
+        [application.user_id]
+      );
+    }
+
+    await pool.query(
+      `UPDATE driver_applications
+       SET status = ?,
+           reviewed_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+      [status, applicationId]
+    );
+
+    return res.status(200).json({
+      message:
+        status === "approved"
+          ? "Driver application approved successfully"
+          : "Driver application rejected successfully",
+    });
+  } catch (error) {
+    console.error(
+      "Review driver application error:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Failed to review driver application",
+    });
+  }
+}
