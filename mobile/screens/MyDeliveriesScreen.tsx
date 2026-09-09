@@ -16,6 +16,7 @@ type Delivery = {
   delivery_address: string;
   package_description: string | null;
   package_weight: number | null;
+  delivery_fee: number | null;
   status: string;
   driver_id: number | null;
   created_at: string;
@@ -117,6 +118,18 @@ export default function MyDeliveriesScreen({
           <Text style={styles.packageText}>
             ⚖️ {item.package_weight} kg
           </Text>
+        )}
+
+        {item.delivery_fee !== null && (
+          <View style={styles.feeContainer}>
+            <Text style={styles.feeLabel}>
+              Delivery Fee
+            </Text>
+
+            <Text style={styles.feeText}>
+              Rs. {Number(item.delivery_fee).toFixed(2)}
+            </Text>
+          </View>
         )}
 
         <Text style={styles.viewDetails}>
@@ -266,6 +279,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#555",
     marginTop: 6,
+  },
+
+  feeContainer: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  feeLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#666",
+  },
+
+  feeText: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: "#111",
   },
 
   viewDetails: {

@@ -1,6 +1,7 @@
 import { Response } from "express";
 import pool from "../config/db";
 import { AuthRequest } from "../middleware/authMiddleware";
+import { calculateDeliveryFee } from "../services/pricingService";
 
 export async function createDelivery(
   req: AuthRequest,
@@ -29,6 +30,15 @@ export async function createDelivery(
       });
     }
 
+    // Temporary distance value for pricing calculation
+    // Real distance calculation will be added later.
+    const distanceKm = 5;
+
+    const deliveryFee = calculateDeliveryFee(
+      distanceKm,
+      Number(package_weight || 0)
+    );
+
     const [result]: any = await pool.query(
       `INSERT INTO deliveries
        (
@@ -36,15 +46,17 @@ export async function createDelivery(
          pickup_address,
          delivery_address,
          package_description,
-         package_weight
+         package_weight,
+         delivery_fee
        )
-       VALUES (?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         customerId,
         pickup_address,
         delivery_address,
         package_description || null,
         package_weight || null,
+        deliveryFee,
       ]
     );
 
@@ -59,6 +71,7 @@ export async function createDelivery(
           package_description || null,
         package_weight:
           package_weight || null,
+        delivery_fee: deliveryFee,
         status: "pending",
       },
     });
@@ -91,6 +104,7 @@ export async function getMyDeliveries(
         delivery_address,
         package_description,
         package_weight,
+        delivery_fee,
         status,
         driver_id,
         created_at,
@@ -99,6 +113,12 @@ export async function getMyDeliveries(
        WHERE customer_id = ?
        ORDER BY created_at DESC`,
       [customerId]
+    );
+
+    // Debug: check exactly what MySQL returns
+    console.log(
+      "🔥 My deliveries DB result:",
+      rows
     );
 
     return res.json({
@@ -140,6 +160,7 @@ export async function getAvailableDeliveries(
         delivery_address,
         package_description,
         package_weight,
+        delivery_fee,
         status,
         created_at
        FROM deliveries
@@ -321,6 +342,7 @@ export async function getMyDriverDeliveries(
         delivery_address,
         package_description,
         package_weight,
+        delivery_fee,
         status,
         driver_id,
         created_at,
@@ -378,6 +400,7 @@ export async function getDriverDeliveryHistory(
         delivery_address,
         package_description,
         package_weight,
+        delivery_fee,
         status,
         driver_id,
         created_at,
@@ -425,6 +448,7 @@ export async function getDeliveryById(
         delivery_address,
         package_description,
         package_weight,
+        delivery_fee,
         status,
         driver_id,
         created_at,
