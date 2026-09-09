@@ -12,6 +12,11 @@ type RecentDelivery = {
   driver_name: string | null;
 };
 
+type DriverApplication = {
+  id: number;
+  status: "pending" | "approved" | "rejected";
+};
+
 const STATUS_STYLES: Record<string, string> = {
   pending:
     "bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20",
@@ -61,6 +66,9 @@ export default function AdminDashboard() {
     completed_deliveries: 0,
   });
 
+  const [pendingDriverApplications, setPendingDriverApplications] =
+    useState(0);
+
   const [recentDeliveries, setRecentDeliveries] =
     useState<RecentDelivery[]>([]);
 
@@ -70,30 +78,61 @@ export default function AdminDashboard() {
         const token =
           localStorage.getItem("adminToken");
 
-        const response = await fetch(
-          "http://192.168.1.37:5000/api/admin/dashboard",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const [dashboardResponse, applicationsResponse] =
+          await Promise.all([
+            fetch(
+              "http://192.168.1.37:5000/api/admin/dashboard",
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            ),
 
-        const data = await response.json();
+            fetch(
+              "http://192.168.1.37:5000/api/admin/driver-applications",
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            ),
+          ]);
+
+        const dashboardData =
+          await dashboardResponse.json();
+
+        const applicationsData =
+          await applicationsResponse.json();
 
         console.log(
           "Admin dashboard data:",
-          data
+          dashboardData
         );
 
         if (
-          response.ok &&
-          data.statistics
+          dashboardResponse.ok &&
+          dashboardData.statistics
         ) {
-          setStats(data.statistics);
+          setStats(dashboardData.statistics);
 
           setRecentDeliveries(
-            data.recent_deliveries || []
+            dashboardData.recent_deliveries || []
+          );
+        }
+
+        if (
+          applicationsResponse.ok &&
+          applicationsData.applications
+        ) {
+          const pendingCount =
+            applicationsData.applications.filter(
+              (application: DriverApplication) =>
+                application.status === "pending"
+            ).length;
+
+          setPendingDriverApplications(
+            pendingCount
           );
         }
       } catch (error) {
@@ -194,6 +233,11 @@ export default function AdminDashboard() {
             <StatCard
               title="Completed Deliveries"
               value={stats.completed_deliveries}
+            />
+
+            <StatCard
+              title="Pending Driver Applications"
+              value={pendingDriverApplications}
             />
           </div>
         </div>
