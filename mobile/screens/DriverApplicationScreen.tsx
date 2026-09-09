@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { createDelivery } from "../api/api";
+import { submitDriverApplication } from "../api/api";
 
 const vehicleOptions = [
   {
@@ -31,98 +31,74 @@ const vehicleOptions = [
   },
 ];
 
-export default function CreateDeliveryScreen({
+export default function DriverApplicationScreen({
   onBack,
 }: {
   onBack: () => void;
 }) {
-  const [pickupAddress, setPickupAddress] = useState("");
-  const [deliveryAddress, setDeliveryAddress] =
-    useState("");
-  const [packageDescription, setPackageDescription] =
-    useState("");
-  const [packageWeight, setPackageWeight] =
-    useState("");
   const [vehicleType, setVehicleType] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showVehicleOptions, setShowVehicleOptions] =
     useState(false);
-  const [loading, setLoading] = useState(false);
 
   const handleSelectVehicle = (vehicle: string) => {
     setVehicleType(vehicle);
     setShowVehicleOptions(false);
   };
 
-  const handleCreateDelivery = async () => {
-    if (!pickupAddress || !deliveryAddress) {
+  const handleSubmitApplication = async () => {
+    if (
+      !vehicleType.trim() ||
+      !vehicleNumber.trim() ||
+      !licenseNumber.trim()
+    ) {
       Alert.alert(
-        "Create Delivery",
-        "Pickup and delivery addresses are required."
+        "Driver Application",
+        "Please fill in all required fields."
       );
       return;
-    }
-
-    if (!vehicleType) {
-      Alert.alert(
-        "Create Delivery",
-        "Please select a vehicle type."
-      );
-      return;
-    }
-
-    if (packageWeight) {
-      const weight = Number(packageWeight);
-
-      if (isNaN(weight) || weight <= 0) {
-        Alert.alert(
-          "Create Delivery",
-          "Please enter a valid package weight."
-        );
-        return;
-      }
     }
 
     try {
       setLoading(true);
 
-      const data = await createDelivery({
-        pickup_address: pickupAddress,
-        delivery_address: deliveryAddress,
-        package_description:
-          packageDescription || undefined,
-        package_weight: packageWeight
-          ? Number(packageWeight)
-          : undefined,
-        vehicle_type: vehicleType,
+      const data = await submitDriverApplication({
+        vehicle_type: vehicleType.trim(),
+        vehicle_number: vehicleNumber.trim(),
+        license_number: licenseNumber.trim(),
       });
 
       console.log(
-        "✅ Delivery created:",
-        data.delivery
+        "✅ Driver application submitted:",
+        data
       );
 
       Alert.alert(
-        "Success",
-        "Your delivery has been created successfully."
+        "Application Submitted",
+        "Your driver application has been submitted successfully. Please wait for admin approval.",
+        [
+          {
+            text: "OK",
+            onPress: onBack,
+          },
+        ]
       );
 
-      setPickupAddress("");
-      setDeliveryAddress("");
-      setPackageDescription("");
-      setPackageWeight("");
       setVehicleType("");
-
-      onBack();
+      setVehicleNumber("");
+      setLicenseNumber("");
     } catch (error: any) {
       console.error(
-        "❌ Create delivery failed:",
+        "❌ Driver application failed:",
         error.response?.data || error.message
       );
 
       Alert.alert(
-        "Delivery Failed",
+        "Application Failed",
         error.response?.data?.message ||
-          "Something went wrong."
+          "Something went wrong. Please try again."
       );
     } finally {
       setLoading(false);
@@ -133,9 +109,7 @@ export default function CreateDeliveryScreen({
     <KeyboardAvoidingView
       style={styles.container}
       behavior={
-        Platform.OS === "ios"
-          ? "padding"
-          : undefined
+        Platform.OS === "ios" ? "padding" : undefined
       }
     >
       <ScrollView
@@ -147,78 +121,26 @@ export default function CreateDeliveryScreen({
           onPress={onBack}
           disabled={loading}
         >
-          <Text style={styles.backText}>
-            ← Back
-          </Text>
+          <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
 
         <Text style={styles.title}>
-          Create Delivery
+          Become a Driver
         </Text>
 
         <Text style={styles.subtitle}>
-          Enter the details of your package
+          Submit your vehicle and license details to
+          apply as a SwiftDrop driver.
         </Text>
 
         <Text style={styles.label}>
-          Pickup Address
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Enter pickup address"
-          value={pickupAddress}
-          onChangeText={setPickupAddress}
-        />
-
-        <Text style={styles.label}>
-          Delivery Address
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Enter delivery address"
-          value={deliveryAddress}
-          onChangeText={setDeliveryAddress}
-        />
-
-        <Text style={styles.label}>
-          Package Description
-        </Text>
-
-        <TextInput
-          style={[
-            styles.input,
-            styles.multiline,
-          ]}
-          placeholder="Example: Documents, clothes..."
-          value={packageDescription}
-          onChangeText={setPackageDescription}
-          multiline
-        />
-
-        <Text style={styles.label}>
-          Package Weight (kg)
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Example: 2.5"
-          value={packageWeight}
-          onChangeText={setPackageWeight}
-          keyboardType="decimal-pad"
-        />
-
-        <Text style={styles.label}>
-          Preferred Vehicle Type
+          Vehicle Type
         </Text>
 
         <TouchableOpacity
           style={styles.dropdown}
           onPress={() =>
-            setShowVehicleOptions(
-              !showVehicleOptions
-            )
+            setShowVehicleOptions(!showVehicleOptions)
           }
           disabled={loading}
         >
@@ -230,13 +152,12 @@ export default function CreateDeliveryScreen({
             }
           >
             {vehicleType
-              ? `${
-                  vehicleOptions.find(
-                    (vehicle) =>
-                      vehicle.label ===
-                      vehicleType
-                  )?.icon
-                } ${vehicleType}`
+              ? vehicleOptions.find(
+                  (vehicle) =>
+                    vehicle.label === vehicleType
+                )?.icon +
+                " " +
+                vehicleType
               : "Select vehicle type"}
           </Text>
 
@@ -261,8 +182,7 @@ export default function CreateDeliveryScreen({
                   {vehicle.icon} {vehicle.label}
                 </Text>
 
-                {vehicleType ===
-                  vehicle.label && (
+                {vehicleType === vehicle.label && (
                   <Text style={styles.check}>
                     ✓
                   </Text>
@@ -272,15 +192,39 @@ export default function CreateDeliveryScreen({
           </View>
         )}
 
+        <Text style={styles.label}>
+          Vehicle Number
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Example: WP ABC-1234"
+          value={vehicleNumber}
+          onChangeText={setVehicleNumber}
+          autoCapitalize="characters"
+        />
+
+        <Text style={styles.label}>
+          Driving License Number
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your license number"
+          value={licenseNumber}
+          onChangeText={setLicenseNumber}
+          autoCapitalize="characters"
+        />
+
         <TouchableOpacity
           style={styles.button}
-          onPress={handleCreateDelivery}
+          onPress={handleSubmitApplication}
           disabled={loading}
         >
           <Text style={styles.buttonText}>
             {loading
-              ? "Creating..."
-              : "Create Delivery"}
+              ? "Submitting..."
+              : "Submit Application"}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -318,6 +262,7 @@ const styles = StyleSheet.create({
   subtitle: {
     color: "#666",
     fontSize: 15,
+    lineHeight: 22,
     marginTop: 7,
     marginBottom: 30,
   },
@@ -326,23 +271,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     marginBottom: 8,
-  },
-
-  input: {
-    height: 52,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    marginBottom: 20,
-  },
-
-  multiline: {
-    height: 90,
-    paddingTop: 15,
-    textAlignVertical: "top",
   },
 
   dropdown: {
@@ -400,6 +328,17 @@ const styles = StyleSheet.create({
   check: {
     fontSize: 18,
     fontWeight: "800",
+  },
+
+  input: {
+    height: 52,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginBottom: 20,
   },
 
   button: {

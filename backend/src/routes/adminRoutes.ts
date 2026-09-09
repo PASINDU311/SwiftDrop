@@ -11,6 +11,7 @@ import {
   getAdminUserById,
   getAdminDriverById,
   assignDriverToDelivery,
+  getDriverApplications,
 } from "../controllers/adminController";
 
 const router = Router();
@@ -40,15 +41,21 @@ router.get(
 );
 
 router.get(
-  "/deliveries",
-  authenticateToken,
-  getAllDeliveries
-);
-
-router.get(
   "/drivers",
   authenticateToken,
   getAllDrivers
+);
+
+router.get(
+  "/driver-applications",
+  authenticateToken,
+  getDriverApplications
+);
+
+router.get(
+  "/deliveries",
+  authenticateToken,
+  getAllDeliveries
 );
 
 router.get(

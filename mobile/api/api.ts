@@ -18,7 +18,10 @@ export async function testBackendConnection() {
 
     return response.data;
   } catch (error) {
-    console.error("❌ Backend API connection failed:", error);
+    console.error(
+      "❌ Backend API connection failed:",
+      error
+    );
     throw error;
   }
 }
@@ -34,7 +37,10 @@ export async function loginUser(
 
   const { token, user } = response.data;
 
-  await SecureStore.setItemAsync("auth_token", token);
+  await SecureStore.setItemAsync(
+    "auth_token",
+    token
+  );
 
   return {
     token,
@@ -48,21 +54,29 @@ export async function registerUser(data: {
   password: string;
   phone: string;
 }) {
-  const response = await API.post("/auth/register", data);
+  const response = await API.post(
+    "/auth/register",
+    data
+  );
 
   return response.data;
 }
 
 export async function getAuthToken() {
-  return await SecureStore.getItemAsync("auth_token");
+  return await SecureStore.getItemAsync(
+    "auth_token"
+  );
 }
 
 export async function logoutUser() {
-  await SecureStore.deleteItemAsync("auth_token");
+  await SecureStore.deleteItemAsync(
+    "auth_token"
+  );
 }
 
 export async function getStoredUser() {
-  const token = await SecureStore.getItemAsync("auth_token");
+  const token =
+    await SecureStore.getItemAsync("auth_token");
 
   if (!token) {
     return null;
@@ -73,17 +87,24 @@ export async function getStoredUser() {
 
     return response.data.user;
   } catch (error) {
-    await SecureStore.deleteItemAsync("auth_token");
+    await SecureStore.deleteItemAsync(
+      "auth_token"
+    );
+
     return null;
   }
 }
 
 API.interceptors.request.use(
   async (config) => {
-    const token = await SecureStore.getItemAsync("auth_token");
+    const token =
+      await SecureStore.getItemAsync("auth_token");
 
     if (token) {
-      config.headers.set("Authorization", `Bearer ${token}`);
+      config.headers.set(
+        "Authorization",
+        `Bearer ${token}`
+      );
     }
 
     return config;
@@ -104,14 +125,20 @@ export async function createDelivery(data: {
   delivery_address: string;
   package_description?: string;
   package_weight?: number;
+  vehicle_type: string;
 }) {
-  const response = await API.post("/deliveries", data);
+  const response = await API.post(
+    "/deliveries",
+    data
+  );
 
   return response.data;
 }
 
 export async function getMyDeliveries() {
-  const response = await API.get("/deliveries");
+  const response = await API.get(
+    "/deliveries"
+  );
 
   return response.data;
 }
@@ -133,7 +160,10 @@ export async function getMyDriverDeliveries() {
 }
 
 export async function getDriverDeliveryHistory() {
-  const response = await API.get("/deliveries/driver/history");
+  const response = await API.get(
+    "/deliveries/driver/history"
+  );
+
   return response.data;
 }
 
@@ -149,7 +179,10 @@ export async function acceptDelivery(
 
 export async function updateDeliveryStatus(
   deliveryId: number,
-  status: "picked_up" | "in_transit" | "delivered"
+  status:
+    | "picked_up"
+    | "in_transit"
+    | "delivered"
 ) {
   const response = await API.patch(
     `/deliveries/${deliveryId}/status`,
@@ -161,15 +194,37 @@ export async function updateDeliveryStatus(
   return response.data;
 }
 
-export async function getDeliveryById(id: number) {
-  const response = await API.get(`/deliveries/${id}`);
+export async function getDeliveryById(
+  id: number
+) {
+  const response = await API.get(
+    `/deliveries/${id}`
+  );
 
   return response.data;
 }
 
-export async function cancelDelivery(id: number) {
+export async function cancelDelivery(
+  id: number
+) {
   const response = await API.patch(
     `/deliveries/${id}/cancel`
+  );
+
+  return response.data;
+}
+
+// Driver Application
+export async function submitDriverApplication(
+  data: {
+    vehicle_type: string;
+    vehicle_number: string;
+    license_number: string;
+  }
+) {
+  const response = await API.post(
+    "/driver-applications",
+    data
   );
 
   return response.data;

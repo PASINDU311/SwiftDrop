@@ -5,6 +5,7 @@ type AdminSidebarProps = {
   onUsers: () => void;
   onDeliveries: () => void;
   onDrivers: () => void;
+  onDriverApplications: () => void;
   onLogout: () => void;
 };
 
@@ -15,6 +16,7 @@ export default function AdminSidebar({
   onUsers,
   onDeliveries,
   onDrivers,
+  onDriverApplications,
   onLogout,
 }: AdminSidebarProps) {
   return (
@@ -70,6 +72,7 @@ export default function AdminSidebar({
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-5">
+        {/* Dashboard */}
         <button
           onClick={onDashboard}
           className={`flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
@@ -81,6 +84,7 @@ export default function AdminSidebar({
           Dashboard
         </button>
 
+        {/* Users */}
         <button
           onClick={onUsers}
           className={`flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
@@ -92,6 +96,7 @@ export default function AdminSidebar({
           Users
         </button>
 
+        {/* Deliveries */}
         <button
           onClick={onDeliveries}
           className={`flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
@@ -103,6 +108,7 @@ export default function AdminSidebar({
           Deliveries
         </button>
 
+        {/* Drivers */}
         <button
           onClick={onDrivers}
           className={`flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
@@ -112,6 +118,18 @@ export default function AdminSidebar({
           }`}
         >
           Drivers
+        </button>
+
+        {/* Driver Applications */}
+        <button
+          onClick={onDriverApplications}
+          className={`flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors ${
+            darkMode
+              ? "text-slate-300 hover:bg-slate-800 hover:text-white"
+              : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+          }`}
+        >
+          Driver Applications
         </button>
       </nav>
 
@@ -133,7 +151,9 @@ export default function AdminSidebar({
           }`}
         >
           <span>
-            {darkMode ? "Dark mode" : "Light mode"}
+            {darkMode
+              ? "Dark mode"
+              : "Light mode"}
           </span>
 
           <span

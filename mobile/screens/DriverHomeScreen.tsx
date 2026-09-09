@@ -25,6 +25,7 @@ type Delivery = {
   delivery_address: string;
   package_description: string | null;
   package_weight: number | null;
+  vehicle_type: string | null;
   delivery_fee: number | null;
   status: string;
   driver_id?: number;
@@ -258,6 +259,13 @@ export default function DriverHomeScreen({
           {item.delivery_address}
         </Text>
 
+        {/* VEHICLE TYPE */}
+        {item.vehicle_type && (
+          <Text style={styles.package}>
+            🚗 {item.vehicle_type}
+          </Text>
+        )}
+
         {/* PACKAGE */}
         {item.package_description && (
           <Text style={styles.package}>
@@ -281,9 +289,9 @@ export default function DriverHomeScreen({
 
             <Text style={styles.feeText}>
               Rs.{" "}
-              {Number(item.delivery_fee).toFixed(
-                2
-              )}
+              {Number(
+                item.delivery_fee
+              ).toFixed(2)}
             </Text>
           </View>
         )}
@@ -437,7 +445,7 @@ export default function DriverHomeScreen({
           </Text>
         </View>
       ) : (
-        <FlatList
+        <FlatList<Delivery>
           data={[]}
           keyExtractor={(item) =>
             item.id.toString()
@@ -696,7 +704,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#eee",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent:
+      "space-between",
     alignItems: "center",
   },
 

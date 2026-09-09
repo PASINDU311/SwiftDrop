@@ -476,3 +476,49 @@ export async function assignDriverToDelivery(
     });
   }
 }
+
+export async function getDriverApplications(
+  req: AuthRequest,
+  res: Response
+) {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required",
+      });
+    }
+
+    const [applications]: any = await pool.query(`
+      SELECT
+        da.id,
+        da.user_id,
+        u.name,
+        u.email,
+        u.phone,
+        da.vehicle_type,
+        da.vehicle_number,
+        da.license_number,
+        da.status,
+        da.submitted_at,
+        da.reviewed_at
+      FROM driver_applications da
+      INNER JOIN users u
+        ON u.id = da.user_id
+      ORDER BY da.submitted_at DESC
+    `);
+
+    return res.status(200).json({
+      applications,
+    });
+  } catch (error) {
+    console.error(
+      "Get driver applications error:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Failed to fetch driver applications",
+    });
+  }
+}

@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
 import { logoutUser } from "../api/api";
 import CreateDeliveryScreen from "./CreateDeliveryScreen";
 import ProfileScreen from "./ProfileScreen";
+import DriverApplicationScreen from "./DriverApplicationScreen";
 
 export default function HomeScreen({
   user,
@@ -33,6 +35,9 @@ export default function HomeScreen({
   const [showProfile, setShowProfile] =
     useState(false);
 
+  const [showDriverApplication, setShowDriverApplication] =
+    useState(false);
+
   if (showCreateDelivery) {
     return (
       <CreateDeliveryScreen
@@ -43,22 +48,35 @@ export default function HomeScreen({
 
   if (showMyDeliveries) {
     return (
-        <MyDeliveriesScreen
+      <MyDeliveriesScreen
         onBack={() => setShowMyDeliveries(false)}
-        />
+      />
+    );
+  }
+
+  if (showDriverApplication) {
+    return (
+      <DriverApplicationScreen
+        onBack={() =>
+          setShowDriverApplication(false)
+        }
+      />
     );
   }
 
   if (showProfile) {
     return (
-        <ProfileScreen
+      <ProfileScreen
         user={user}
         onBack={() => setShowProfile(false)}
+        onBecomeDriver={() =>
+          setShowDriverApplication(true)
+        }
         onLogout={async () => {
-            await logoutUser();
-            onLogout();
+          await logoutUser();
+          onLogout();
         }}
-        />
+      />
     );
   }
 
@@ -66,18 +84,25 @@ export default function HomeScreen({
     <View style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Welcome back 👋</Text>
-          <Text style={styles.name}>{user.name}</Text>
+          <Text style={styles.greeting}>
+            Welcome back 👋
+          </Text>
+
+          <Text style={styles.name}>
+            {user.name}
+          </Text>
         </View>
 
         <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={async () => {
-                await logoutUser();
-                onLogout();
-            }}
+          style={styles.logoutButton}
+          onPress={async () => {
+            await logoutUser();
+            onLogout();
+          }}
         >
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>
+            Logout
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -91,8 +116,10 @@ export default function HomeScreen({
         </Text>
 
         <TouchableOpacity
-            style={styles.deliveryButton}
-            onPress={() => setShowCreateDelivery(true)}
+          style={styles.deliveryButton}
+          onPress={() =>
+            setShowCreateDelivery(true)
+          }
         >
           <Text style={styles.deliveryButtonText}>
             Create Delivery
@@ -108,11 +135,14 @@ export default function HomeScreen({
         <View style={styles.actions}>
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => setShowMyDeliveries(true)}
-         >
+            onPress={() =>
+              setShowMyDeliveries(true)
+            }
+          >
             <Text style={styles.actionTitle}>
               📦 My Deliveries
             </Text>
+
             <Text style={styles.actionText}>
               Track your deliveries
             </Text>
@@ -125,6 +155,7 @@ export default function HomeScreen({
             <Text style={styles.actionTitle}>
               👤 Profile
             </Text>
+
             <Text style={styles.actionText}>
               Manage your account
             </Text>

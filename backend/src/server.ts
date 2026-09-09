@@ -2,10 +2,12 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { testDatabaseConnection } from "./config/db";
+
 import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
 import deliveryRoutes from "./routes/deliveryRoutes";
 import adminRoutes from "./routes/adminRoutes";
+import driverApplicationRoutes from "./routes/driverApplicationRoutes";
 
 dotenv.config();
 
@@ -25,6 +27,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/deliveries", deliveryRoutes);
 app.use("/api/admin", adminRoutes);
+
+app.use(
+  "/api/driver-applications",
+  driverApplicationRoutes
+);
 
 app.get("/", (_req, res) => {
   res.json({

@@ -361,7 +361,7 @@ export default function AdminDeliveryDetails({
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Delivery ID
-              </p>
+              </p>         
 
               <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-white">
                 #{delivery.id}

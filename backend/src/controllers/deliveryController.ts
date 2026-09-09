@@ -3,6 +3,13 @@ import pool from "../config/db";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { calculateDeliveryFee } from "../services/pricingService";
 
+const allowedVehicleTypes = [
+  "Motorbike",
+  "Car",
+  "Van",
+  "Truck",
+];
+
 export async function createDelivery(
   req: AuthRequest,
   res: Response
@@ -21,12 +28,25 @@ export async function createDelivery(
       delivery_address,
       package_description,
       package_weight,
+      vehicle_type,
     } = req.body;
 
     if (!pickup_address || !delivery_address) {
       return res.status(400).json({
         message:
           "Pickup address and delivery address are required",
+      });
+    }
+
+    if (!vehicle_type) {
+      return res.status(400).json({
+        message: "Vehicle type is required",
+      });
+    }
+
+    if (!allowedVehicleTypes.includes(vehicle_type)) {
+      return res.status(400).json({
+        message: "Invalid vehicle type",
       });
     }
 
@@ -47,15 +67,17 @@ export async function createDelivery(
          delivery_address,
          package_description,
          package_weight,
+         vehicle_type,
          delivery_fee
        )
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         customerId,
         pickup_address,
         delivery_address,
         package_description || null,
         package_weight || null,
+        vehicle_type,
         deliveryFee,
       ]
     );
@@ -71,6 +93,7 @@ export async function createDelivery(
           package_description || null,
         package_weight:
           package_weight || null,
+        vehicle_type,
         delivery_fee: deliveryFee,
         status: "pending",
       },
@@ -104,6 +127,7 @@ export async function getMyDeliveries(
         delivery_address,
         package_description,
         package_weight,
+        vehicle_type,
         delivery_fee,
         status,
         driver_id,
@@ -115,7 +139,6 @@ export async function getMyDeliveries(
       [customerId]
     );
 
-    // Debug: check exactly what MySQL returns
     console.log(
       "🔥 My deliveries DB result:",
       rows
@@ -154,19 +177,25 @@ export async function getAvailableDeliveries(
 
     const [rows] = await pool.query(
       `SELECT
-        id,
-        customer_id,
-        pickup_address,
-        delivery_address,
-        package_description,
-        package_weight,
-        delivery_fee,
-        status,
-        created_at
-       FROM deliveries
-       WHERE status = 'pending'
-       AND driver_id IS NULL
-       ORDER BY created_at ASC`
+        d.id,
+        d.customer_id,
+        d.pickup_address,
+        d.delivery_address,
+        d.package_description,
+        d.package_weight,
+        d.vehicle_type,
+        d.delivery_fee,
+        d.status,
+        d.created_at
+       FROM deliveries d
+       INNER JOIN driver_applications da
+         ON da.user_id = ?
+        AND da.status = 'approved'
+        AND da.vehicle_type = d.vehicle_type
+       WHERE d.status = 'pending'
+       AND d.driver_id IS NULL
+       ORDER BY d.created_at ASC`,
+      [driverId]
     );
 
     return res.json({
@@ -297,7 +326,8 @@ export async function updateDeliveryStatus(
     }
 
     return res.json({
-      message: "Delivery status updated successfully",
+      message:
+        "Delivery status updated successfully",
       delivery: {
         id: deliveryId,
         status,
@@ -342,6 +372,7 @@ export async function getMyDriverDeliveries(
         delivery_address,
         package_description,
         package_weight,
+        vehicle_type,
         delivery_fee,
         status,
         driver_id,
@@ -400,6 +431,7 @@ export async function getDriverDeliveryHistory(
         delivery_address,
         package_description,
         package_weight,
+        vehicle_type,
         delivery_fee,
         status,
         driver_id,
@@ -422,7 +454,8 @@ export async function getDriverDeliveryHistory(
     );
 
     return res.status(500).json({
-      message: "Failed to fetch driver delivery history",
+      message:
+        "Failed to fetch driver delivery history",
     });
   }
 }
@@ -448,6 +481,7 @@ export async function getDeliveryById(
         delivery_address,
         package_description,
         package_weight,
+        vehicle_type,
         delivery_fee,
         status,
         driver_id,
@@ -523,10 +557,14 @@ export async function cancelDelivery(
     );
 
     return res.json({
-      message: "Delivery cancelled successfully",
+      message:
+        "Delivery cancelled successfully",
     });
   } catch (error) {
-    console.error("Cancel delivery error:", error);
+    console.error(
+      "Cancel delivery error:",
+      error
+    );
 
     return res.status(500).json({
       message: "Failed to cancel delivery",

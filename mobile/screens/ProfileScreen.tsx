@@ -17,10 +17,12 @@ export default function ProfileScreen({
   user,
   onBack,
   onLogout,
+  onBecomeDriver,
 }: {
   user: User;
   onBack: () => void;
   onLogout: () => void;
+  onBecomeDriver: () => void;
 }) {
   return (
     <View style={styles.container}>
@@ -76,6 +78,21 @@ export default function ProfileScreen({
           </Text>
         </View>
       </View>
+
+      {user.role === "customer" && (
+        <TouchableOpacity
+          style={styles.driverButton}
+          onPress={onBecomeDriver}
+        >
+          <Text style={styles.driverButtonText}>
+            🚗 Become a Driver
+          </Text>
+
+          <Text style={styles.driverButtonSubtext}>
+            Apply to deliver with SwiftDrop
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         style={styles.logoutButton}
@@ -174,13 +191,33 @@ const styles = StyleSheet.create({
     marginVertical: 14,
   },
 
+  driverButton: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 16,
+    padding: 17,
+    marginTop: 20,
+  },
+
+  driverButtonText: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+
+  driverButtonSubtext: {
+    fontSize: 13,
+    color: "#666",
+    marginTop: 5,
+  },
+
   logoutButton: {
     height: 52,
     borderRadius: 13,
     backgroundColor: "#111",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 15,
   },
 
   logoutText: {

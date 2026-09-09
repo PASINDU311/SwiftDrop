@@ -1,9 +1,12 @@
 import { useState } from "react";
+
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminDeliveries from "./pages/AdminDeliveries";
 import AdminDrivers from "./pages/AdminDrivers";
+import AdminDriverApplications from "./pages/AdminDriverApplications";
+
 import AdminSidebar from "./components/AdminSidebar";
 
 function App() {
@@ -11,7 +14,8 @@ function App() {
     !!localStorage.getItem("adminToken")
   );
 
-  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [currentPage, setCurrentPage] =
+    useState("dashboard");
 
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
@@ -47,12 +51,26 @@ function App() {
       <AdminSidebar
         darkMode={darkMode}
         onToggleTheme={handleToggleTheme}
-        onDashboard={() => setCurrentPage("dashboard")}
-        onUsers={() => setCurrentPage("users")}
-        onDeliveries={() => setCurrentPage("deliveries")}
-        onDrivers={() => setCurrentPage("drivers")}
+        onDashboard={() =>
+          setCurrentPage("dashboard")
+        }
+        onUsers={() =>
+          setCurrentPage("users")
+        }
+        onDeliveries={() =>
+          setCurrentPage("deliveries")
+        }
+        onDrivers={() =>
+          setCurrentPage("drivers")
+        }
+        onDriverApplications={() =>
+          setCurrentPage("driver-applications")
+        }
         onLogout={() => {
-          localStorage.removeItem("adminToken");
+          localStorage.removeItem(
+            "adminToken"
+          );
+
           setIsLoggedIn(false);
         }}
       />
@@ -72,6 +90,10 @@ function App() {
 
         {currentPage === "drivers" && (
           <AdminDrivers />
+        )}
+
+        {currentPage === "driver-applications" && (
+          <AdminDriverApplications />
         )}
       </main>
     </div>
